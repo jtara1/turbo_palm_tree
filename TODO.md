@@ -3,7 +3,6 @@
 * get basic functioning subreddit image downloader
 * logging
 * database
-* multi threading
 * unit tests
 
 ### Priority 2
