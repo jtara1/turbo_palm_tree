@@ -42,14 +42,14 @@ def parse_arguments(args):
                             ' specified subreddit or list of subreddits.')
     parser.add_argument('subreddit', metavar='<subreddit>',
                         help='Subreddit or subreddit list file name')
-    parser.add_argument('directory', metavar='<directory>', default=os.getcwd(),
-                        help='Directory to save images in')
+    parser.add_argument('directory', metavar='<directory>', nargs='?',
+                        default=os.getcwd(), help='Directory to save images in')
     parser.add_argument('--sort-type', '-s', metavar='s', required=False,
                         default='hot', type=str, help='Sort type for subreddit')
 
     parsed_argument = parser.parse_args(args)
 
-    if not validate_sort_type(parsed_argument.sort_type):
+    if not valid_sort_type(parsed_argument.sort_type):
         print('CLI ERROR: Invalid sort-type')
         parse_arguments(['--help'])
 

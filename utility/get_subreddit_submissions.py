@@ -1,8 +1,17 @@
 import sys, os, time
 import praw
-from parse_arguments import SubredditSortTypes
 import logging
 from urllib.request import urlopen, Request
+
+if __name__ == "__main__":
+    from parse_arguments import SubredditSortTypes
+    dir = os.getcwd()
+    getter = GetSubredditSubmissions('pics', dir, 'hot', 5)
+    getter2 = GetSubredditSubmissions('pics', dir, 'topall', 5)
+    getter.get_submissions()
+    # getter2.get_submissions()
+
+from .parse_arguments import SubredditSortTypes
 
 class GetSubredditSubmissions:
     """Return links and data on a number of submission of a given subreddit."""
@@ -64,10 +73,3 @@ class GetSubredditSubmissions:
         # elif self.base_sort_type == "controversial":
         #     self.praw_reddit.get_subreddit(self.subreddit)
         #         .get_controversial(self.limit)
-
-if __name__ == "__main__":
-    dir = os.getcwd()
-    getter = GetSubredditSubmissions('pics', dir, 'hot', 5)
-    getter2 = GetSubredditSubmissions('pics', dir, 'topall', 5)
-    getter.get_submissions()
-    # getter2.get_submissions()
