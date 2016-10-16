@@ -1,7 +1,6 @@
 import sys, os, time
 import praw
 import logging
-from urllib.request import urlopen, Request
 
 if __name__ == "__main__":
     from parse_arguments import SubredditSortTypes
@@ -9,7 +8,7 @@ if __name__ == "__main__":
     getter = GetSubredditSubmissions('pics', dir, 'hot', 5)
     getter2 = GetSubredditSubmissions('pics', dir, 'topall', 5)
     getter.get_submissions()
-    # getter2.get_submissions()
+    getter2.get_submissions()
     sys.exit(0)
 
 from .parse_arguments import SubredditSortTypes
@@ -27,7 +26,7 @@ class GetSubredditSubmissions:
             (e.g.: 'topweek', 'controversialall')
         :param numb_submissions: number of submissions to get
         """
-        log = logging.getLogger('GetSubredditSubmissions')
+        self.log = logging.getLogger('GetSubredditSubmissions')
 
         self.subreddit = subreddit
         self.praw_reddit = praw.Reddit(user_agent='turbo_palm_tree')
@@ -47,27 +46,22 @@ class GetSubredditSubmissions:
         if self.time_filter:
             self.url += '?sort=%s&t=%s' % (self.base_sort_type, self.time_filter)
 
-        log.info('attributes = %s' % self.__dict__)
+        self.log.debug('attributes = %s' % self.__dict__)
 
 
     def get_submissions(self):
         """Returns list of tuples containing submission URLs & title"""
-        s = self.praw_reddit.get_content(url = self.url,
+        submissions = self.praw_reddit.get_content(url = self.url,
                                         limit = self.limit)
-        # req = self.praw_reddit.request_json(url=self.url)
+        # json_data = self.praw_reddit.request_json(url=self.url,
+        #     limit=self.limit)
+        # with open('myJson.txt', 'w') as f:
+        #     f.write(str(json_data))
 
-        for submission in s:
-            print(submission.url)
+        return submissions
 
-        # if self.base_sort_type == "hot":
-        #     submissions = self.praw_reddit.get_subreddit(self.subreddit).get_hot(self.limit)
-        # elif self.base_sort_type == "top":
-        #     self.praw_reddit.get_subreddit(self.subreddit).get_top(self.limit)
-        # elif self.base_sort_type == "new":
-        #     self.praw_reddit.get_subreddit(self.subreddit).get_new(self.limit)
-        # elif self.base_sort_type == "rising":
-        #     self.praw_reddit.get_subreddit(self.subreddit)
-        #         .get_rising(self.limit)
-        # elif self.base_sort_type == "controversial":
-        #     self.praw_reddit.get_subreddit(self.subreddit)
-        #         .get_controversial(self.limit)
+
+    def get_submissions_info(self):
+        """Extracts info from each submission and returns a generator object"""
+        submissions = self.get_submissions()
+        pass

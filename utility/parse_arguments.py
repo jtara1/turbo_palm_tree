@@ -37,15 +37,20 @@ def valid_sort_type(sort_type):
 
 
 def parse_arguments(args):
-    """Parse arguments using the argparse module"""
+    """Parse arguments using the builtin argparse module"""
     parser = ArgumentParser(description='Downloads image files from the'
                             ' specified subreddit or list of subreddits.')
-    parser.add_argument('subreddit', metavar='<subreddit>',
+    parser.add_argument('subreddit', metavar='<subreddit>', type=str,
                         help='Subreddit or subreddit list file name')
-    parser.add_argument('directory', metavar='<directory>', nargs='?',
+    parser.add_argument('directory', metavar='<directory>', nargs='?', type=str,
                         default=os.getcwd(), help='Directory to save images in')
     parser.add_argument('--sort-type', '-s', metavar='s', required=False,
                         default='hot', type=str, help='Sort type for subreddit')
+    parser.add_argument('--limit', '--num', '-l', metavar='l', required=False,
+                        default=25, type=int, help='Number of submissions to'
+                        ' download from')
+    parser.add_argument('--debug', '-d', required=False, default=True,
+                        action='store_true', help='Enable debug mode')
 
     parsed_argument = parser.parse_args(args)
 
