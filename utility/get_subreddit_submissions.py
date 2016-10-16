@@ -10,6 +10,7 @@ if __name__ == "__main__":
     getter2 = GetSubredditSubmissions('pics', dir, 'topall', 5)
     getter.get_submissions()
     # getter2.get_submissions()
+    sys.exit(0)
 
 from .parse_arguments import SubredditSortTypes
 
@@ -26,13 +27,11 @@ class GetSubredditSubmissions:
             (e.g.: 'topweek', 'controversialall')
         :param numb_submissions: number of submissions to get
         """
-        logging.basicConfig(filename='submissions.log')
         log = logging.getLogger('GetSubredditSubmissions')
 
         self.subreddit = subreddit
         self.praw_reddit = praw.Reddit(user_agent='turbo_palm_tree')
-        self.numb_submissions = numb_submissions
-        self.limit = 25
+        self.limit = numb_submissions
 
         # deal with sort types that do and don't have time filter concatenated
         valid_sort_types = list(st.value for st in list(SubredditSortTypes))
@@ -48,8 +47,7 @@ class GetSubredditSubmissions:
         if self.time_filter:
             self.url += '?sort=%s&t=%s' % (self.base_sort_type, self.time_filter)
 
-        log.debug(self.url)
-        print(self.url)
+        log.info('attributes = %s' % self.__dict__)
 
 
     def get_submissions(self):
