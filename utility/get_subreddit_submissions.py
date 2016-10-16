@@ -16,7 +16,7 @@ from .parse_arguments import SubredditSortTypes
 class GetSubredditSubmissions:
     """Return links and data on a number of submission of a given subreddit."""
 
-    def __init__(self, subreddit, dir, sort_type, numb_submissions):
+    def __init__(self, subreddit, dir, sort_type, limit, previous_id=None):
         """
         :param subreddit: name of subreddit
         :param dir: directory to save images to
@@ -24,13 +24,15 @@ class GetSubredditSubmissions:
             `sort_type` in addition 'top' and 'controversial' can have an
             advanced sort option such to sort by time frame
             (e.g.: 'topweek', 'controversialall')
-        :param numb_submissions: number of submissions to get
+        :param limit: number of submissions to get
+        :param previous_id: reddit id (or fullname) to begin downloading after
         """
         self.log = logging.getLogger('GetSubredditSubmissions')
 
         self.subreddit = subreddit
         self.praw_reddit = praw.Reddit(user_agent='turbo_palm_tree')
-        self.limit = numb_submissions
+        self.limit = limit
+        self.previous_id = previous_id if previous_id else ''
 
         # deal with sort types that do and don't have time filter concatenated
         valid_sort_types = list(st.value for st in list(SubredditSortTypes))
@@ -41,10 +43,17 @@ class GetSubredditSubmissions:
 
         # get URL of subreddit for given sort_type
         base_url = 'https://www.reddit.com/r/'
-        self.url = '%s%s/%s.json' % (base_url, self.subreddit,
+        self.url = '%s%s/%s' % (base_url, self.subreddit,
             self.base_sort_type)
-        if self.time_filter:
-            self.url += '?sort=%s&t=%s' % (self.base_sort_type, self.time_filter)
+        # if self.time_filter:
+        #     self.url += '?sort=%s&t=%s' % (self.base_sort_type, self.time_filter)
+        #
+        # # skip to id after given previous_id if given
+        # if previous_id:
+        #     append_char = '&' if self.time_filter else '?'
+        #     self.url += '%safter=%s' % (append_char,
+        #         't3_' + previous_id if 't3_' not in previous_id
+        #         else previous_id)
 
         self.log.debug('attributes = %s' % self.__dict__)
 
@@ -52,7 +61,13 @@ class GetSubredditSubmissions:
     def get_submissions(self):
         """Returns list of tuples containing submission URLs & title"""
         submissions = self.praw_reddit.get_content(url = self.url,
-                                        limit = self.limit)
+            limit = self.limit,
+            params={
+                'sort': self.base_sort_type,
+                't': self.time_filter,
+                'after': self.previous_id
+                }
+            )
         # json_data = self.praw_reddit.request_json(url=self.url,
         #     limit=self.limit)
         # with open('myJson.txt', 'w') as f:
@@ -64,4 +79,10 @@ class GetSubredditSubmissions:
     def get_submissions_info(self):
         """Extracts info from each submission and returns a generator object"""
         submissions = self.get_submissions()
-        pass
+        return ({
+            'url': s.url,
+            'fullname': s.fullname,
+            'id': s.fullname[3:],
+            'title': s.title,
+            'score': s.score,
+            } for s in submissions)

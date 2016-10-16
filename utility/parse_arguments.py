@@ -49,6 +49,9 @@ def parse_arguments(args):
     parser.add_argument('--limit', '--num', '-l', metavar='l', required=False,
                         default=25, type=int, help='Number of submissions to'
                         ' download from')
+    parser.add_argument('--prev-id', '--last-id', metavar='id', type=str,
+                        default=None, required=False, help='Begin downloading'
+                        ' from the submission after the given reddit id')
     parser.add_argument('--debug', '-d', required=False, default=True,
                         action='store_true', help='Enable debug mode')
 
