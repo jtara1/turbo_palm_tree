@@ -6,5 +6,8 @@
 
 """Initializes program"""
 
+import os, sys, time
+from utility.parse_arguments import parse_arguments
+
 if __name__ == "__main__":
-    pass
+    args = parse_arguments(['--help'] if len(sys.argv) == 1 else sys.argv[1:])
