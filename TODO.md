@@ -1,16 +1,16 @@
 ### Priority 1
 
 * get basic functioning subreddit image downloader
-* logging
-* database
-* unit tests
+* cli
 
 ### Priority 2
 
-* cli
+* logging
+* database
+* unit tests
 * start implementing some features from repo `RedditImageGrab` into this repo
-* add support for video downloading using module `youtube-dl`
 
 ### Priority 3
 
+* add support for video downloading using module `youtube-dl`
 * gui

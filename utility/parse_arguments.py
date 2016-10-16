@@ -19,7 +19,11 @@ class SubredditSortTypes(Enum):
         return [self.value + t_filter for t_filter in self.time_filters]
 
 
-def validate_sort_type(sort_type):
+def valid_sort_type(sort_type):
+    """Make sure the sort-type given by user is a valid sort type
+    :return: sort_type passed if valid else an emtpy string
+    :rtype: string
+    """
     # build list of valid sort types based on SubredditSortTypes enum class
     valid_st_list = list(st.value for st in list(SubredditSortTypes))
     valid_st_list.extend(SubredditSortTypes.top.advanced_sorts() +
@@ -45,7 +49,7 @@ def parse_arguments(args):
 
     parsed_argument = parser.parse_args(args)
 
-    if validate_sort_type(parsed_argument.sort_type) == '':
+    if not validate_sort_type(parsed_argument.sort_type):
         print('CLI ERROR: Invalid sort-type')
         parse_arguments(['--help'])
 
