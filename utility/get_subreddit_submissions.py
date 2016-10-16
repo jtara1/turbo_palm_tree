@@ -45,15 +45,6 @@ class GetSubredditSubmissions:
         base_url = 'https://www.reddit.com/r/'
         self.url = '%s%s/%s' % (base_url, self.subreddit,
             self.base_sort_type)
-        # if self.time_filter:
-        #     self.url += '?sort=%s&t=%s' % (self.base_sort_type, self.time_filter)
-        #
-        # # skip to id after given previous_id if given
-        # if previous_id:
-        #     append_char = '&' if self.time_filter else '?'
-        #     self.url += '%safter=%s' % (append_char,
-        #         't3_' + previous_id if 't3_' not in previous_id
-        #         else previous_id)
 
         self.log.debug('attributes = %s' % self.__dict__)
 
@@ -68,10 +59,6 @@ class GetSubredditSubmissions:
                 'after': self.previous_id
                 }
             )
-        # json_data = self.praw_reddit.request_json(url=self.url,
-        #     limit=self.limit)
-        # with open('myJson.txt', 'w') as f:
-        #     f.write(str(json_data))
 
         return submissions
 

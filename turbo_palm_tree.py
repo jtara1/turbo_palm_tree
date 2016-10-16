@@ -33,13 +33,5 @@ if __name__ == "__main__":
     ## pretty printer
     pp = pprint.PrettyPrinter(indent=4)
 
-    # print and log the id and url of each submission
-    # for submission in submissions:
-    #     # print(submission.title)
-    #     # print(submission.score)
-    #     print('fullname=%s, url=%s' % (submission.fullname, submission.url))
-    #     log.debug('fullname (id), url = %s, %s' % (
-    #         submission.fullname, submission.url))
-
     for s in submissions2:
         pp.pprint(s)
