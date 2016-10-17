@@ -12,18 +12,35 @@ Download images from subreddits.
 * BeautifulSoup (bs4)
 
 
+## Installation
+
+Clone or download this repo somewhere, e.g.:
+
+    git clone https://github.com/jtara1/turbo_palm_tree && cd turbo_palm_tree
+
+Install Python 3 then the needed [modules](#Modules)
+
+    pip install -r requirements.txt
+
+
 ## Usage
 
-1. Download or clone repository
-2. Install modules via `pip instsall -r requirements.txt`
-3. Check CLI options by running `python turbo_palm_tree.py`
-4. Run program with desired CLI options
+Run this to check CLI args and options
+
+    python turbo_palm_tree.py
+
+Then run the same python file with desired options and args
+
+examples:
+
+    python turbo_palm_tree.py pics my_folder_for_pics --limit 5 --sort-type topall
 
 ## Credits
 
 * [nim901](https://github.com/nim901/gfycat) for the gfycat submodule
-* [rachmadaniHaryono](https://github.com/rachmadaniHaryono) for various
-downloader and parsing submodules
+* [rachmadaniHaryono](https://github.com/rachmadaniHaryono) for deviantart
+parsing submodule
+* praw and BeautifulSoup contributers
 * [jtara1](https://github.com/jtara1) for imgur_downloader and everything else
 
 Inspired by [RedditImageGrab](https://github.com/jtara1/RedditImageGrab).
