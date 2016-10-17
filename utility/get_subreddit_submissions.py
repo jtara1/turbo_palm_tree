@@ -16,7 +16,7 @@ from .parse_arguments import SubredditSortTypes
 class GetSubredditSubmissions:
     """Return links and data on a number of submission of a given subreddit."""
 
-    def __init__(self, subreddit, dir, sort_type, limit, previous_id=None):
+    def __init__(self, subreddit, path, sort_type, limit, previous_id=None):
         """
         :param subreddit: name of subreddit
         :param dir: directory to save images to
@@ -33,6 +33,7 @@ class GetSubredditSubmissions:
         self.praw_reddit = praw.Reddit(user_agent='turbo_palm_tree')
         self.limit = limit
         self.previous_id = previous_id if previous_id else ''
+        self.path = path
 
         # deal with sort types that do and don't have time filter concatenated
         valid_sort_types = list(st.value for st in list(SubredditSortTypes))
@@ -53,7 +54,7 @@ class GetSubredditSubmissions:
         """Returns list of tuples containing submission URLs & title"""
         submissions = self.praw_reddit.get_content(url = self.url,
             limit = self.limit,
-            params={
+            params = {
                 'sort': self.base_sort_type,
                 't': self.time_filter,
                 'after': self.previous_id

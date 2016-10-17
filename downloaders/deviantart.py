@@ -10,7 +10,7 @@ try:  # py2
     from urllib2 import urlopen
 except ImportError:  # py3
     from urllib.request import urlopen
-    
+
 from bs4 import BeautifulSoup
 import logging
 import os
@@ -19,7 +19,7 @@ import math
 from direct_link_download import direct_link_download
 
 
-def process_deviant_url(url):
+def process_deviantart_url(url):
     """
     process deviantart url.
 
@@ -47,9 +47,9 @@ def process_deviant_url(url):
     return [url]
 
 
-def download_deviant_url(url, path):
+def download_deviantart_url(url, path):
     """Downloads image(s) from given deviantart url"""
-    urls = process_deviant_url(url)
+    urls = process_deviantart_url(url)
 
     if len(urls) == 1:
         direct_link_download(urls[0], path)
@@ -69,10 +69,10 @@ def download_deviant_url(url, path):
 if __name__ == "__main__":
     user_url = 'http://cartoongirl7.deviantart.com/'
     single_image = 'http://www.deviantart.com/art/Impossible-LOV3-ver-3-35710689'
-    # ret = process_deviant_url(single_image)
+    # ret = process_deviantart_url(single_image)
     # print(ret)
     # print(len(ret))
     dir1 = os.path.join(os.getcwd(), 'devimg.png')
-    # download_deviant_url(single_image, dir1)
+    # download_deviantart_url(single_image, dir1)
     dir2 = os.path.join(os.getcwd(), 'tmp')
-    download_deviant_url(user_url, dir2)
+    download_deviantart_url(user_url, dir2)

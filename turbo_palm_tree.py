@@ -10,6 +10,7 @@ import pprint
 
 from utility.parse_arguments import parse_arguments
 from utility.get_subreddit_submissions import GetSubredditSubmissions
+from utility.download_subreddit_submissions import DownloadSubredditSubmissions
 
 
 if __name__ == "__main__":
@@ -18,20 +19,25 @@ if __name__ == "__main__":
 
     # setup logging
     logging.basicConfig(filename='status_report.log',
-        format='%(levelname)s|%(asctime)s|%(message)s',
+        format='%(levelname)s|%(name)s|%(asctime)s|%(message)s',
         datefmt='%m/%d/%y %H:%M:%S',
         level=logging.DEBUG if args.debug else logging.INFO)
     log = logging.getLogger('turbo_palm_tree')
     log.info('args = %s' % args)
 
     # get submissions from a subreddit
-    getter = GetSubredditSubmissions(args.subreddit, args.directory,
-         args.sort_type, args.limit, args.prev_id)
-    submissions = getter.get_submissions()
-    submissions2 = getter.get_submissions_info()
+    # getter = GetSubredditSubmissions(args.subreddit, args.directory,
+    #      args.sort_type, args.limit, args.prev_id)
+    # submissions = getter.get_submissions_info()
+
+    # download submissions
+    downloader = DownloadSubredditSubmissions(subreddit=args.subreddit,
+        path=args.directory, sort_type=args.sort_type, limit=args.limit,
+        previous_id=args.prev_id)
+    downloader.download()
 
     ## pretty printer
     pp = pprint.PrettyPrinter(indent=4)
 
-    for s in submissions2:
-        pp.pprint(s)
+    # for s in submissions:
+    #     pp.pprint(s)
