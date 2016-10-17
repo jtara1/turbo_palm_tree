@@ -1,3 +1,6 @@
 [submodule "downloaders/imgur_downloader"]
 	path = downloaders/imgur_downloader
 	url = https://github.com/jtara1/imgur_downloader
+[submodule "downloaders/gfycat"]
+	path = downloaders/gfycat
+	url = https://github.com/jtara1/gfycat
