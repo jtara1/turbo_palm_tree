@@ -7,7 +7,7 @@ from .general_utility import slugify
 from downloaders.direct_link_download import direct_link_download
 from downloaders.imgur_downloader.imgurdownloader import ImgurDownloader
 from downloaders.gfycat.gfycat.gfycat import Gfycat
-from downloaders.deviantart import download_deviant_url
+from downloaders.deviantart import download_deviantart_url
 
 
 class DownloadSubredditSubmissions(GetSubredditSubmissions):
@@ -42,7 +42,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 direct_link_download(url, file_path)
 
             elif 'imgur.com' in url:
-                imgur = ImgurDownloader(imgur_url=url, dir_download=path,
+                imgur = ImgurDownloader(imgur_url=url, dir_download=self.path,
                     file_name=filename, delete_dne=True, debug=False)
                 imgur.save_images()
 

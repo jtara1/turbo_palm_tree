@@ -16,7 +16,7 @@ import logging
 import os
 import math
 
-from direct_link_download import direct_link_download
+from .direct_link_download import direct_link_download
 
 
 def process_deviantart_url(url):
@@ -67,6 +67,7 @@ def download_deviantart_url(url, path):
 
 
 if __name__ == "__main__":
+    from direct_link_download import direct_link_download
     user_url = 'http://cartoongirl7.deviantart.com/'
     single_image = 'http://www.deviantart.com/art/Impossible-LOV3-ver-3-35710689'
     # ret = process_deviantart_url(single_image)

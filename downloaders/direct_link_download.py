@@ -4,7 +4,7 @@ from urllib.request import urlretrieve
 
 def direct_link_download(url, file_path):
     """Download content from url to file_path using `urllib.request.urlretrieve`
-    
+
     :param url: direct link to an image
     :param file_path: file path (including filename) to save image to
     """
