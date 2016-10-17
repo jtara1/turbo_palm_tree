@@ -1,13 +1,22 @@
 # @Author: rachmadaniHaryono (https://github.com/rachmadaniHaryono)
 
-"""Module to parse deviantart page; The basis of this was built by
-[rachmadaniHaryono](https://github.com/rachmadaniHaryono)"""
+"""Module to parse or download images from deviantart page.
+The basis of this was built by
+[rachmadaniHaryono](https://github.com/rachmadaniHaryono) with additions and
+modifications from jtara1 & contributers of [turbo_palm_tree]
+(https://github.com/jtara1/turbo_palm_tree)
+"""
 try:  # py2
     from urllib2 import urlopen
 except ImportError:  # py3
     from urllib.request import urlopen
-
+    
 from bs4 import BeautifulSoup
+import logging
+import os
+import math
+
+from direct_link_download import direct_link_download
 
 
 def process_deviant_url(url):
@@ -38,9 +47,32 @@ def process_deviant_url(url):
     return [url]
 
 
+def download_deviant_url(url, path):
+    """Downloads image(s) from given deviantart url"""
+    urls = process_deviant_url(url)
+
+    if len(urls) == 1:
+        direct_link_download(urls[0], path)
+
+    elif len(urls) > 1:
+        if os.path.isfile(path):
+            raise ValueError('%s points to a file, but there\'s more than one'
+                ' image to download' % path)
+
+        for index in range(len(urls)):
+            # prefix source: https://github.com/alexgisby/imgur-album-downloader
+            prefix = "%0*d" % (
+                int(math.ceil(math.log(len(urls) + 1, 10))), index)
+            direct_link_download(urls[index], os.path.join(path, prefix))
+
+
 if __name__ == "__main__":
     user_url = 'http://cartoongirl7.deviantart.com/'
     single_image = 'http://www.deviantart.com/art/Impossible-LOV3-ver-3-35710689'
-    ret = process_deviant_url(single_image)
-    print(ret)
-    print(len(ret))
+    # ret = process_deviant_url(single_image)
+    # print(ret)
+    # print(len(ret))
+    dir1 = os.path.join(os.getcwd(), 'devimg.png')
+    # download_deviant_url(single_image, dir1)
+    dir2 = os.path.join(os.getcwd(), 'tmp')
+    download_deviant_url(user_url, dir2)
