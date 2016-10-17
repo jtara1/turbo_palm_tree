@@ -1,0 +1,3 @@
+praw
+bs4
+lxml
