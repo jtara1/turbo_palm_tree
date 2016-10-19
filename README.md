@@ -14,9 +14,9 @@ Download images from subreddits.
 
 ## Installation
 
-Clone or download this repo somewhere, e.g.:
+Clone this repo somewhere, e.g.:
 
-    git clone https://github.com/jtara1/turbo_palm_tree && cd turbo_palm_tree
+    git clone --recursive https://github.com/jtara1/turbo_palm_tree && cd turbo_palm_tree
 
 Install Python 3 then the needed [modules](#Modules)
 
