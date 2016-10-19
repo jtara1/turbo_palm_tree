@@ -29,12 +29,17 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         #     datefmt='%m/%d/%y %H:%M:%S',
         #     level=logging.DEBUG)
         self.log = logging.getLogger('DownloadSubredditSubmissions')
+        self.Exceptions = (FileExistsException, FileExistsError,
+            ImgurException, HTTPError)
 
 
     def download(self):
         """Download media from submissions"""
-        media_extensions = ('.png', '.jpg', '.jpeg', '.webm', '.gif', '.mp4')
         submissions = self.get_submissions_info()
+        media_extensions = ('.png', '.jpg', '.jpeg', '.webm', '.gif', '.mp4')
+
+        # counters to keep track of how many submissions we downloaded & more
+        download_count, error_count, skip_count = 0
 
         for submission in submissions:
             url = submission['url']
@@ -44,13 +49,16 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
 
             self.log.info('Attempting to save %s as %s' % (url, file_path))
 
+            # check domain and call corresponding downloader download functions
+            # or methods
             try:
                 if url.endswith(media_extensions):
                     direct_link_download(url, file_path)
 
                 elif 'imgur.com' in url:
-                    imgur = ImgurDownloader(imgur_url=url, dir_download=self.path,
-                        file_name=filename, delete_dne=True, debug=False)
+                    imgur = ImgurDownloader(imgur_url=url,
+                        dir_download=self.path, file_name=filename,
+                        delete_dne=True, debug=False)
                     imgur.save_images()
 
                 elif 'gfycat.com' in url:
@@ -60,22 +68,12 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 elif 'deviantart.com' in url:
                     download_deviantart_url(url, file_path)
 
-            except (FileExistsException, FileExistsError) as e:
-                msg = '%s already exists (url = %s)' % (file_path, url)
-                self.log.warning(msg)
-                print(msg)
+            # except (FileExistsException, FileExistsError) as e:
+            #     msg = '%s already exists (url = %s)' % (file_path, url)
+            #     self.log.warning(msg)
+            #     print(msg)
 
-            except ImugrException as e:
-                msg = 'ImgurException: %s' % e.msg
-                self.log.warning(msg)
-                print(msg)
-
-            except HTTPError as e:
-                msg = 'HTTPError: %s' % e.msg
-                self.log.warning(msg)
-                print(msg)
-
-            except Exception as e:
-                msg = 'Exception: %s' % e.msg
+            except self.Exceptions as e:
+                msg = '%s: %s' % (type(e).__name__, e.msg)
                 self.log.warning(msg)
                 print(msg)
