@@ -5,8 +5,8 @@ from .get_subreddit_submissions import GetSubredditSubmissions
 from .general_utility import slugify
 
 # Exceptions
-from downloaders.imgur_downloader.imgurdownloader import (
-    FileExistsException, ImgurException)
+from downloaders.imgur_downloader.imgurdownloader import FileExistsException
+from downloaders.imgur_downloader.imgurdownloader import ImgurException
 
 
 # downloaders
@@ -24,10 +24,10 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         super().__init__(*args, **kwargs)
 
         # setup logging
-        logging.basicConfig(filename='download_history.log',
-            format='%(levelname)s|%(name)s|%(asctime)s|%(message)s',
-            datefmt='%m/%d/%y %H:%M:%S',
-            level=logging.DEBUG)
+        # logging.basicConfig(filename='download_history.log',
+        #     format='%(levelname)s|%(name)s|%(asctime)s|%(message)s',
+        #     datefmt='%m/%d/%y %H:%M:%S',
+        #     level=logging.DEBUG)
         self.log = logging.getLogger('DownloadSubredditSubmissions')
 
 
@@ -54,28 +54,28 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     imgur.save_images()
 
                 elif 'gfycat.com' in url:
-                    # choose the smallest file on gfycat
-                    gfycat_json = Gfycat().more(url.split("gfycat.com/")[-1]).json()
-                    if gfycat_json["mp4Size"] < gfycat_json["webmSize"]:
-                        urls = [gfycat_json["mp4Url"]]
-                    else:
-                        urls = [gfycat_json["webmUrl"]]
-                    (direct_link_download(url) for url in urls)
+                    gfycat_id = url.split('/')[-1]
+                    gfycat = Gfycat().more(gfycat_id).download(save_dir)
 
                 elif 'deviantart.com' in url:
                     download_deviantart_url(url, file_path)
 
             except (FileExistsException, FileExistsError) as e:
                 msg = '%s already exists (url = %s)' % (file_path, url)
-                self.log.warn(msg)
+                self.log.warning(msg)
                 print(msg)
 
             except ImugrException as e:
                 msg = 'ImgurException: %s' % e.msg
-                self.log.warn(msg)
+                self.log.warning(msg)
+                print(msg)
+
+            except HTTPError as e:
+                msg = 'HTTPError: %s' % e.msg
+                self.log.warning(msg)
                 print(msg)
 
             except Exception as e:
                 msg = 'Exception: %s' % e.msg
-                self.log.warn(msg)
+                self.log.warning(msg)
                 print(msg)

@@ -19,11 +19,15 @@ if __name__ == "__main__":
 
     # setup logging
     logging.basicConfig(filename='status_report.log',
-        format='%(levelname)s|%(name)s|%(asctime)s|%(message)s',
+        format='%(levelname)s | %(name)s | %(asctime)s | %(message)s',
         datefmt='%m/%d/%y %H:%M:%S',
         level=logging.DEBUG if args.debug else logging.INFO)
     log = logging.getLogger('turbo_palm_tree')
     log.info('args = %s' % args)
+
+    # create directory if not yet created
+    if not os.path.isdir(args.directory):
+        os.makedirs(args.directory)
 
     # get submissions from a subreddit
     # getter = GetSubredditSubmissions(args.subreddit, args.directory,
