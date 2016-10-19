@@ -32,50 +32,82 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         #     level=logging.DEBUG)
         self.log = logging.getLogger('DownloadSubredditSubmissions')
         self.Exceptions = (FileExistsException, FileExistsError,
-            ImgurException, HTTPError, Exception)
+            ImgurException, HTTPError, ValueError, Exception)
 
 
     def download(self):
         """Download media from submissions"""
-        submissions = self.get_submissions_info()
+        # used to check if url ends with any of these
         media_extensions = ('.png', '.jpg', '.jpeg', '.webm', '.gif', '.mp4')
+        limit = self.limit
+        # if any of these parts are in submission url, raise an exception
+        invalid_url_segments = [
+            '%s/comments' % self.subreddit,
+            'redditmetrics.com']
 
         # counters to keep track of how many submissions we downloaded & more
-        download_count = error_count = skip_count = 0
+        download_count, error_count, skip_count = 0, 0, 0
+        status_variables = [download_count, error_count, skip_count]
 
-        for submission in submissions:
-            url = submission['url']
-            title = submission['title']
-            filename = slugify(title)
-            file_path = os.path.join(self.path, filename)
+        # ensures the amount of submissions downloaded from is equal to limit
+        while(download_count < limit):
+            errors, skips = 0, 0
+            # get submissions (dict containing info) & use data to download
+            submissions = self.get_submissions_info()
+            for submission in submissions:
+                url = submission['url']
+                title = submission['title']
+                filename = slugify(title)
+                file_path = os.path.join(self.path, filename)
+                submission_id = submission['id']
 
-            self.log.info('Attempting to save %s as %s' % (url, file_path))
+                self.log.info('Attempting to save %s as %s' % (url, file_path))
 
-            # check domain and call corresponding downloader download functions
-            # or methods
-            try:
-                if url.endswith(media_extensions):
-                    direct_link_download(url, file_path)
+                # check domain and call corresponding downloader download
+                # functions or methods
+                try:
+                    if (invalid_url_segments[0] or invalid_url_segments[1] in
+                        url):
+                        raise ValueError('Invalid submission URL: %s' % url)
 
-                elif 'imgur.com' in url:
-                    imgur = ImgurDownloader(imgur_url=url,
-                        dir_download=self.path, file_name=filename,
-                        delete_dne=True, debug=False)
-                    imgur.save_images()
+                    if url.endswith(media_extensions):
+                        direct_link_download(url, file_path)
 
-                elif 'gfycat.com' in url:
-                    gfycat_id = url.split('/')[-1]
-                    gfycat = Gfycat().more(gfycat_id).download(save_dir)
+                    elif 'imgur.com' in url:
+                        imgur = ImgurDownloader(imgur_url=url,
+                            dir_download=self.path, file_name=filename,
+                            delete_dne=True, debug=False)
+                        imgur.save_images()
 
-                elif 'deviantart.com' in url:
-                    download_deviantart_url(url, file_path)
+                    elif 'gfycat.com' in url:
+                        gfycat_id = url.split('/')[-1]
+                        gfycat = Gfycat().more(gfycat_id).download(save_dir)
 
-            # except (FileExistsException, FileExistsError) as e:
-            #     msg = '%s already exists (url = %s)' % (file_path, url)
-            #     self.log.warning(msg)
-            #     print(msg)
+                    elif 'deviantart.com' in url:
+                        download_deviantart_url(url, file_path)
 
-            except self.Exceptions as e:
-                msg = '%s: %s' % (type(e).__name__, e.args)
-                self.log.warning(msg)
-                print(msg)
+                # except (FileExistsException, FileExistsError) as e:
+                #     msg = '%s already exists (url = %s)' % (file_path, url)
+                #     self.log.warning(msg)
+                #     print(msg)
+
+                except self.Exceptions as e:
+                    msg = '%s: %s' % (type(e).__name__, e.args)
+                    self.log.warning(msg)
+                    print(msg)
+                    errors += 1
+
+            # update previous id downloaded
+            print('id: %s' % submission_id)
+            self.set_prev_id(submission_id)
+
+            # update count of media successfully downloaded
+            download_count += download_count + (
+                self.limit - errors - skips)
+            print('dl count: %s' % download_count)
+            error_count += errors
+            skip_count += skips
+
+            # update attribute limit which is used when getting submissions
+            if download_count < limit:
+                self.set_limit(limit - download_count)

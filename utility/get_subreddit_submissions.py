@@ -74,3 +74,13 @@ class GetSubredditSubmissions:
             'title': s.title,
             'score': s.score,
             } for s in submissions)
+
+
+    def set_limit(self, limit):
+        """Set attribute limit to :param limit:"""
+        self.limit = limit
+
+
+    def set_prev_id(self, prev_id):
+        """Set attribute prev_id to :param prev_id:"""
+        self.prev_id = prev_id
