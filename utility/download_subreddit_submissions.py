@@ -5,8 +5,10 @@ from .get_subreddit_submissions import GetSubredditSubmissions
 from .general_utility import slugify
 
 # Exceptions
-from downloaders.imgur_downloader.imgurdownloader import FileExistsException
-from downloaders.imgur_downloader.imgurdownloader import ImgurException
+from downloaders.imgur_downloader.imgurdownloader import (
+    FileExistsException,
+    ImgurException)
+from urllib.error import HTTPError
 
 
 # downloaders
@@ -30,7 +32,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         #     level=logging.DEBUG)
         self.log = logging.getLogger('DownloadSubredditSubmissions')
         self.Exceptions = (FileExistsException, FileExistsError,
-            ImgurException, HTTPError)
+            ImgurException, HTTPError, Exception)
 
 
     def download(self):
@@ -39,7 +41,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         media_extensions = ('.png', '.jpg', '.jpeg', '.webm', '.gif', '.mp4')
 
         # counters to keep track of how many submissions we downloaded & more
-        download_count, error_count, skip_count = 0
+        download_count = error_count = skip_count = 0
 
         for submission in submissions:
             url = submission['url']
@@ -74,6 +76,6 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
             #     print(msg)
 
             except self.Exceptions as e:
-                msg = '%s: %s' % (type(e).__name__, e.msg)
+                msg = '%s: %s' % (type(e).__name__, e.args)
                 self.log.warning(msg)
                 print(msg)
