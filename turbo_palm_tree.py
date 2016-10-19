@@ -13,6 +13,20 @@ from utility.get_subreddit_submissions import GetSubredditSubmissions
 from utility.download_subreddit_submissions import DownloadSubredditSubmissions
 
 
+def get_submissions(*args, **kwargs):
+    getter = GetSubredditSubmissions(*args, **kwargs)
+    submissions = getter.get_submissions_info()
+    ## pretty printer
+    pp = pprint.PrettyPrinter(indent=4)
+    for s in submissions:
+        pp.pprint(s)
+
+
+def download_submissions(*args, **kwargs):
+    downloader = DownloadSubredditSubmissions(*args, **kwargs)
+    downloader.download()
+
+
 if __name__ == "__main__":
     # pass raw command line args to parse_arguments function
     args = parse_arguments(['--help'] if len(sys.argv) == 1 else sys.argv[1:])
@@ -29,19 +43,10 @@ if __name__ == "__main__":
     if not os.path.isdir(args.directory):
         os.makedirs(args.directory)
 
-    # get submissions from a subreddit
-    # getter = GetSubredditSubmissions(args.subreddit, args.directory,
-    #      args.sort_type, args.limit, args.prev_id)
-    # submissions = getter.get_submissions_info()
-
-    # download submissions
-    downloader = DownloadSubredditSubmissions(subreddit=args.subreddit,
+    download_submissions(subreddit=args.subreddit,
         path=args.directory, sort_type=args.sort_type, limit=args.limit,
         previous_id=args.prev_id)
-    downloader.download()
 
-    ## pretty printer
-    pp = pprint.PrettyPrinter(indent=4)
-
-    # for s in submissions:
-    #     pp.pprint(s)
+    # get_submissions(subreddit=args.subreddit,
+    #     path=args.directory, sort_type=args.sort_type, limit=args.limit,
+    #     previous_id=args.prev_id)

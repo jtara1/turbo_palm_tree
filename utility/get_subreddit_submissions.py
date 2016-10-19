@@ -32,7 +32,8 @@ class GetSubredditSubmissions:
         self.subreddit = subreddit
         self.praw_reddit = praw.Reddit(user_agent='turbo_palm_tree')
         self.limit = limit
-        self.previous_id = previous_id if previous_id else ''
+        self.previous_id = '' if not previous_id else (
+            self.set_previous_id(previous_id))
         self.path = path
 
         # deal with sort types that do and don't have time filter concatenated
@@ -81,6 +82,9 @@ class GetSubredditSubmissions:
         self.limit = limit
 
 
-    def set_prev_id(self, prev_id):
+    def set_previous_id(self, prev_id):
         """Set attribute prev_id to :param prev_id:"""
-        self.prev_id = prev_id
+        fullname_tag = 't3_'
+        if prev_id[:3] != fullname_tag:
+            prev_id = '%s%s' % (fullname_tag, prev_id)
+        self.previous_id = prev_id

@@ -40,10 +40,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         # used to check if url ends with any of these
         media_extensions = ('.png', '.jpg', '.jpeg', '.webm', '.gif', '.mp4')
         limit = self.limit
-        # if any of these parts are in submission url, raise an exception
-        invalid_url_segments = [
-            '%s/comments' % self.subreddit,
-            'redditmetrics.com']
+        # we_stuck = False
 
         # counters to keep track of how many submissions we downloaded & more
         download_count, error_count, skip_count = 0, 0, 0
@@ -66,10 +63,6 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 # check domain and call corresponding downloader download
                 # functions or methods
                 try:
-                    if (invalid_url_segments[0] or invalid_url_segments[1] in
-                        url):
-                        raise ValueError('Invalid submission URL: %s' % url)
-
                     if url.endswith(media_extensions):
                         direct_link_download(url, file_path)
 
@@ -86,6 +79,9 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     elif 'deviantart.com' in url:
                         download_deviantart_url(url, file_path)
 
+                    else:
+                        raise ValueError('Invalid submission URL: %s' % url)
+
                 # except (FileExistsException, FileExistsError) as e:
                 #     msg = '%s already exists (url = %s)' % (file_path, url)
                 #     self.log.warning(msg)
@@ -99,7 +95,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
 
             # update previous id downloaded
             print('id: %s' % submission_id)
-            self.set_prev_id(submission_id)
+            self.set_previous_id(submission_id)
 
             # update count of media successfully downloaded
             download_count += download_count + (
@@ -107,6 +103,17 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
             print('dl count: %s' % download_count)
             error_count += errors
             skip_count += skips
+
+            # Prevents infinite looping over submissions tht can't be downloaded
+            # but it also can prevent progression in getting next submissions
+            # if the submissions checked are already downloaded
+            # if errors + skips >= self.limit:
+            #     if we_stuck:
+            #         break
+            #     else:
+            #         we_stuck = True
+            # else:
+            #     we_stuck = False
 
             # update attribute limit which is used when getting submissions
             if download_count < limit:
