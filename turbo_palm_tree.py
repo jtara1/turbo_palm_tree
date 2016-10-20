@@ -39,6 +39,11 @@ if __name__ == "__main__":
     log = logging.getLogger('turbo_palm_tree')
     log.info('cli args = %s' % args)
 
+    # check if subreddit or local file for list of subreddits was passed
+    list_file_extensions = ('.txt')
+    if args.subreddit.endswith(list_file_extensions):
+        pass
+
     # create directory if not yet created
     if not os.path.isdir(args.directory):
         os.makedirs(args.directory)
