@@ -37,7 +37,7 @@ if __name__ == "__main__":
         datefmt='%m/%d/%y %H:%M:%S',
         level=logging.DEBUG if args.debug else logging.INFO)
     log = logging.getLogger('turbo_palm_tree')
-    log.info('args = %s' % args)
+    log.info('cli args = %s' % args)
 
     # create directory if not yet created
     if not os.path.isdir(args.directory):
@@ -45,8 +45,8 @@ if __name__ == "__main__":
 
     download_submissions(subreddit=args.subreddit,
         path=args.directory, sort_type=args.sort_type, limit=args.limit,
-        previous_id=args.prev_id)
+        previous_id=args.prev_id, debug=args.debug)
 
     # get_submissions(subreddit=args.subreddit,
     #     path=args.directory, sort_type=args.sort_type, limit=args.limit,
-    #     previous_id=args.prev_id)
+    #     previous_id=args.prev_id, debug=args.debug)

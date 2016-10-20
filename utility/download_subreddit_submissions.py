@@ -94,7 +94,6 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     errors += 1
 
             # update previous id downloaded
-            print('id: %s' % submission_id)
             self.set_previous_id(submission_id)
 
             # update count of media successfully downloaded
