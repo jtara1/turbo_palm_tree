@@ -2,14 +2,16 @@ import os, time, sys
 import logging
 
 from .get_subreddit_submissions import GetSubredditSubmissions
+
+# utility
 from .general_utility import slugify
+from .manage_subreddit_last_id import history_log, process_subreddit_last_id
 
 # Exceptions
 from downloaders.imgur_downloader.imgurdownloader import (
     FileExistsException,
     ImgurException)
 from urllib.error import HTTPError
-
 
 # downloaders
 from downloaders.direct_link_download import direct_link_download
@@ -45,6 +47,13 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         # counters to keep track of how many submissions we downloaded & more
         download_count, error_count, skip_count = 0, 0, 0
         status_variables = [download_count, error_count, skip_count]
+
+        # load last-id of submission downloaded from or create new file for id
+        log_filename = '._history.txt'
+        log_data, prev_id = process_subreddit_last_id(
+            subreddit=self.subreddit, sort_type=self.sort_type,
+            dir=self.path, log_file=log_filename, verbose=True)
+        self.previous_id = prev_id if not self.previous_id else self.previous_id
 
         # ensures the amount of submissions downloaded from is equal to limit
         while(download_count < limit):
@@ -118,3 +127,6 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
             # update attribute limit which is used when getting submissions
             if download_count < limit:
                 self.set_limit(limit - download_count)
+            else:
+                log_data[self.subreddit][self.sort_type]['last-id']=submission_id
+                history_log(self.path, log_filename, 'write', log_data)

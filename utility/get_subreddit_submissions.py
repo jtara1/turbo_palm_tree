@@ -31,6 +31,7 @@ class GetSubredditSubmissions:
         self.log = logging.getLogger('GetSubredditSubmissions')
 
         self.subreddit = subreddit
+        self.sort_type = sort_type
         self.praw_reddit = praw.Reddit(user_agent='turbo_palm_tree')
         self.limit = limit
         self.previous_id = '' if not previous_id else (
