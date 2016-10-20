@@ -11,6 +11,7 @@ import pprint
 from utility.parse_arguments import parse_arguments
 from utility.get_subreddit_submissions import GetSubredditSubmissions
 from utility.download_subreddit_submissions import DownloadSubredditSubmissions
+from utility.parse_subreddit_list import parse_subreddit_list
 
 
 def get_submissions(*args, **kwargs):
@@ -42,7 +43,7 @@ if __name__ == "__main__":
     # check if subreddit or local file for list of subreddits was passed
     list_file_extensions = ('.txt')
     if args.subreddit.endswith(list_file_extensions):
-        subreddit_list = parse_subreddit_list(args.subreddit)
+        subreddit_list = parse_subreddit_list(args.subreddit, args.directory)
     else:
         subreddit_list = [(args.subreddit, args.directory)]
 

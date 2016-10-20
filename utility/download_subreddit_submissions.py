@@ -63,7 +63,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 # check domain and call corresponding downloader download
                 # functions or methods
                 try:
-                    if url.endswith(media_extensions):
+                    if url.endswith(media_extensions) or (
+                        'i.reddituploads.com' in url):
                         direct_link_download(url, file_path)
 
                     elif 'imgur.com' in url:

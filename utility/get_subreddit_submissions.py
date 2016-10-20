@@ -16,7 +16,8 @@ from .parse_arguments import SubredditSortTypes
 class GetSubredditSubmissions:
     """Return links and data on a number of submission of a given subreddit."""
 
-    def __init__(self, subreddit, path, sort_type, limit, previous_id=None):
+    def __init__(self, subreddit, path, sort_type, limit, previous_id=None,
+                debug=False):
         """
         :param subreddit: name of subreddit
         :param dir: directory to save images to
