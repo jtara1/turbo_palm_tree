@@ -52,6 +52,9 @@ def parse_arguments(args):
     parser.add_argument('--prev-id', '--last-id', metavar='id', type=str,
                         default=None, required=False, help='Begin downloading'
                         ' from the submission after the given reddit id')
+    parser.add_argument('--restart', '-r', required=False, store='store_false',
+                        default=False,
+                        help='Begin downloading from the beggining')
     parser.add_argument('--debug', '-d', required=False, default=True,
                         action='store_true', help='Enable debug mode')
 
