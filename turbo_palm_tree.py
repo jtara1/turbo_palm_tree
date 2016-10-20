@@ -42,15 +42,25 @@ if __name__ == "__main__":
     # check if subreddit or local file for list of subreddits was passed
     list_file_extensions = ('.txt')
     if args.subreddit.endswith(list_file_extensions):
-        pass
+        subreddit_list = parse_subreddit_list(args.subreddit)
+    else:
+        subreddit_list = [(args.subreddit, args.directory)]
 
-    # create directory if not yet created
-    if not os.path.isdir(args.directory):
-        os.makedirs(args.directory)
+    # iterate over the list of subreddit(s) and download from each of them
+    for subreddit, path in subreddit_list:
+        # create directory if not yet created
+        if not os.path.isdir(path):
+            os.makedirs(path)
 
-    download_submissions(subreddit=args.subreddit,
-        path=args.directory, sort_type=args.sort_type, limit=args.limit,
-        previous_id=args.prev_id, debug=args.debug)
+        download_submissions(subreddit=subreddit,
+            path=path, sort_type=args.sort_type, limit=args.limit,
+            previous_id=args.prev_id, debug=args.debug)
+
+
+
+    # download_submissions(subreddit=args.subreddit,
+    #     path=args.directory, sort_type=args.sort_type, limit=args.limit,
+    #     previous_id=args.prev_id, debug=args.debug)
 
     # get_submissions(subreddit=args.subreddit,
     #     path=args.directory, sort_type=args.sort_type, limit=args.limit,
