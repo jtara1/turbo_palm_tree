@@ -1,3 +1,6 @@
+#turbo_palm_tree
+database_manager/tpt.db
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
