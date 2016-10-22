@@ -1,6 +1,7 @@
 import sys, os, time
 from argparse import ArgumentParser
 from enum import Enum
+from praw import Reddit
 
 class SubredditSortTypes(Enum):
     hot = "hot"
@@ -66,6 +67,11 @@ def parse_arguments(args):
     if not valid_sort_type(parsed_arguments.sort_type):
         print('CLI ERROR: Invalid sort-type')
         parse_arguments(['--help'])
+
+    # get exact (case-matching) subreddit name
+    parsed_arguments.subreddit = (Reddit('turbo_palm_tree')
+        .get_subreddit(parsed_arguments.subreddit)
+        ._get_json_dict()['display_name'])
 
     # set default directory if none given
     if not parsed_arguments.directory:
