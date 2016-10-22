@@ -23,7 +23,7 @@ from downloaders.deviantart import download_deviantart_url
 
 class DownloadSubredditSubmissions(GetSubredditSubmissions):
     """Downloads subreddit submissions
-    .. todo:: Make logging log to it's own seperate file"""
+    .. todo:: Make logging log to its own seperate file"""
 
     def __init__(self, *args, **kwargs):
         # call constructor of GetSubredditSubmissions class passing args
@@ -37,7 +37,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         """Download media from submissions"""
         # get db manager object for inserting and saving data to db
         db = TPTDatabaseManager()
-        exit_program = False
+        continue_downloading = True
 
         # used to check if url ends with any of these
         media_extensions = ('.png', '.jpg', '.jpeg', '.webm', '.gif', '.mp4')
@@ -53,10 +53,11 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         log_data, prev_id = process_subreddit_last_id(
             subreddit=self.subreddit, sort_type=self.sort_type,
             dir=self.path, log_file=log_filename, verbose=True)
-        self.previous_id = prev_id if not self.previous_id else self.previous_id
+        self.set_previous_id(prev_id) if not self.previous_id else (
+            self.previous_id)
 
         # ensures the amount of submissions downloaded from is equal to limit
-        while(download_count < limit and not exit_program):
+        while(continue_downloading):
             errors, skips = 0, 0
             # get submissions (dict containing info) & use data to download
             submissions = self.get_submissions_info()
@@ -104,10 +105,10 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     print(msg)
                     errors += 1
                 except KeyboardInterrupt:
-                    msg = 'KeyboardInterrupt sent, exiting program'
+                    msg = 'KeyboardInterrupt caught, exiting program'
                     self.log.info(msg)
                     print(msg)
-                    exit_program = True
+                    continue_downloading = False
 
             # update previous id downloaded
             self.set_previous_id(submission_id)
@@ -121,8 +122,9 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
             # update attribute limit which is used when getting submissions
             if download_count < limit:
                 self.set_limit(limit - download_count)
-            else:
+            elif (download_count >= limit or not continue_downloading):
                 log_data[self.subreddit][self.sort_type]['last-id']=submission_id
                 history_log(self.path, log_filename, 'write', log_data)
+                continue_downloading = False
 
         db.close()

@@ -42,29 +42,29 @@ class GetSubredditSubmissions:
         # deal with sort types that do and don't have time filter concatenated
         valid_sort_types = list(st.value for st in list(SubredditSortTypes))
         self.base_sort_type = valid_sort_types[
-            [st in sort_type for st in valid_sort_types].index(True)
-        ]
+            [st in sort_type for st in valid_sort_types].index(True)]
+
         self.time_filter = sort_type.split(self.base_sort_type)[-1]
 
         # get URL of subreddit for given sort_type
         base_url = 'https://www.reddit.com/r/'
-        self.url = '%s%s/%s' % (base_url, self.subreddit,
+        self.url = '{}{}/{}'.format(base_url, self.subreddit,
             self.base_sort_type)
 
-        self.log.debug('attributes = %s' % self.__dict__)
+        self.log.debug('attributes = {}'.format(self.__dict__))
 
 
     def get_submissions(self):
         """Returns list of tuples containing submission URLs & title"""
-        submissions = self.praw_reddit.get_content(url = self.url,
+        submissions = self.praw_reddit.get_content(
+            url = self.url,
             limit = self.limit,
             params = {
                 'sort': self.base_sort_type,
                 't': self.time_filter,
                 'after': self.previous_id
-                }
-            )
-
+            }
+        )
         return submissions
 
 
@@ -96,7 +96,7 @@ class GetSubredditSubmissions:
 
 
     def set_previous_id(self, prev_id):
-        """Set attribute prev_id to :param prev_id:"""
+        """Set attribute previous_id to :param prev_id:"""
         fullname_tag = 't3_'
         if prev_id[:3] != fullname_tag:
             prev_id = '{ftag}{id}'.format(ftag=fullname_tag,id=prev_id)

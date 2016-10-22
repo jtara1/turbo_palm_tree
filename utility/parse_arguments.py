@@ -52,7 +52,7 @@ def parse_arguments(args):
                         default=5, type=int, help='Number of submissions to'
                         ' download from; defaults to 5')
     parser.add_argument('--prev-id', '--last-id', metavar='id', type=str,
-                        default=None, required=False, help='Begin downloading'
+                        default='', required=False, help='Begin downloading'
                         ' from the submission after the given reddit id')
     parser.add_argument('--restart', '-r', required=False, action='store_false',
                         default=False,
