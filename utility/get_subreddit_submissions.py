@@ -75,7 +75,7 @@ class GetSubredditSubmissions:
         submissions = self.get_submissions()
 
         # it's possible someone submits a submission then delete their account
-        return (    
+        return ({
             'subreddit': self.subreddit,
             'url': s.url,
             'fullname': s.fullname,

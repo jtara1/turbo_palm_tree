@@ -37,6 +37,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         """Download media from submissions"""
         # get db manager object for inserting and saving data to db
         db = TPTDatabaseManager()
+        exit_program = False
 
         # used to check if url ends with any of these
         media_extensions = ('.png', '.jpg', '.jpeg', '.webm', '.gif', '.mp4')
@@ -55,7 +56,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         self.previous_id = prev_id if not self.previous_id else self.previous_id
 
         # ensures the amount of submissions downloaded from is equal to limit
-        while(download_count < limit):
+        while(download_count < limit and not exit_program):
             errors, skips = 0, 0
             # get submissions (dict containing info) & use data to download
             submissions = self.get_submissions_info()
@@ -102,13 +103,17 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     self.log.warning(msg)
                     print(msg)
                     errors += 1
+                except KeyboardInterrupt:
+                    msg = 'KeyboardInterrupt sent, exiting program'
+                    self.log.info(msg)
+                    print(msg)
+                    exit_program = True
 
             # update previous id downloaded
             self.set_previous_id(submission_id)
 
             # update count of media successfully downloaded
-            download_count += download_count + (
-                self.limit - errors - skips)
+            download_count += self.limit - errors - skips
             print('dl count: {}'.format(download_count))
             error_count += errors
             skip_count += skips
@@ -119,3 +124,5 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
             else:
                 log_data[self.subreddit][self.sort_type]['last-id']=submission_id
                 history_log(self.path, log_filename, 'write', log_data)
+
+        db.close()
