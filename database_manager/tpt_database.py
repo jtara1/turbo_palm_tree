@@ -7,7 +7,6 @@ import sqlite3
 class TPTDatabaseManager:
     """`tpt.db` is the database name and `reddit_downloads` is the table name"""
 
-
     def __init__(self):
         """Create db and table if not created"""
         root_dir = os.path.dirname(__file__)
@@ -24,41 +23,60 @@ class TPTDatabaseManager:
             title varchar,
             url varchar,
             comments_url varchar,
-            reddit_id varchar,
+            submission_id varchar,
             file_path varchar,
-            dl_time time);""")
+            score integer,
+            author varchar,
+            submit_date time,
+            download_date time);""")
 
 
-    def insert_data(self, data):
+    def insert(self, data):
         """Insert data into table
         :param data: dictionary with keys of table column names and values to
             insert
         """
         self.cursor.execute("""INSERT INTO reddit_downloads
-            (subreddit, title, url, comments_url, reddit_id, file_path, dl_time)
-            VALUES (:subreddit, :title, :url, :comments_url, :reddit_id,
-                :file_path, :dl_time);""",
+            (subreddit, title, url, comments_url, submission_id, file_path,
+            score, author, submit_date, download_date)
+            VALUES (:subreddit, :title, :url, :comments_url, :id, :file_path,
+                :score, :author, :submit_date, :download_date);""",
             data)
 
 
     def print_all(self):
-        """select all, fetch all, print all"""
+        """select all, fetch all, print all
+        .. note:: This only prints what has been saved (committed) in the db.
+        """
         self.cursor.execute("SELECT * FROM reddit_downloads")
         rows = self.cursor.fetchall()
         for row in rows:
             print(row)
 
 
+    def save(self):
+        """Save (commit) changed to db"""
+        self.connection.commit()
+
     def close(self):
         """Close & save changes made to database, should be done before
         program exit
         """
-        self.connection.commit()
+        self.save()
         self.connection.close()
 
 
 if __name__ == "__main__":
     db = TPTDatabaseManager()
+        # 'url': 'myurl.com',
+        # 'fullname': 't3_sdlakj',
+        # 'id': 'asdkljf',
+        # 'title': 'wow an image!',
+        # 'score': 9001,
+        # 'author': 'jman',
+        # 'selftext': '',
+        # 'submit_date': 98472947,
+        # 'comments_url': reddit.com/r/dlfj/ldskfj/comments/,
     my_data = {
         'subreddit': 'pics',
         'title': 'This also Japan',

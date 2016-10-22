@@ -12,6 +12,7 @@ if __name__ == "__main__":
     sys.exit(0)
 
 from .parse_arguments import SubredditSortTypes
+from utility.general_utility import slugify
 
 class GetSubredditSubmissions:
     """Return links and data on a number of submission of a given subreddit."""
@@ -68,14 +69,22 @@ class GetSubredditSubmissions:
 
 
     def get_submissions_info(self):
-        """Extracts info from each submission and returns a generator object"""
+        """Extracts info from each submission and returns a generator object
+        .. protip:: Check `submission.__dict__` or `submission._api_link` for
+        more dictionary keys and values that are usable"""
         submissions = self.get_submissions()
         return ({
+            'subreddit': self.subreddit,
             'url': s.url,
             'fullname': s.fullname,
             'id': s.fullname[3:],
             'title': s.title,
             'score': s.score,
+            'author': s.author.name,
+            'selftext': s.selftext,
+            'submit_date': s.created,
+            'comments_url': s.permalink,
+            'file_path': os.path.join(self.path, slugify(s.title))
             } for s in submissions)
 
 
@@ -88,5 +97,5 @@ class GetSubredditSubmissions:
         """Set attribute prev_id to :param prev_id:"""
         fullname_tag = 't3_'
         if prev_id[:3] != fullname_tag:
-            prev_id = '%s%s' % (fullname_tag, prev_id)
+            prev_id = '{ftag}{id}'.format(ftag=fullname_tag,id=prev_id)
         self.previous_id = prev_id

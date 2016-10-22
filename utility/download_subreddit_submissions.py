@@ -6,6 +6,7 @@ from .get_subreddit_submissions import GetSubredditSubmissions
 # utility
 from .general_utility import slugify
 from .manage_subreddit_last_id import history_log, process_subreddit_last_id
+from database_manager.tpt_database import TPTDatabaseManager
 
 # Exceptions
 from downloaders.imgur_downloader.imgurdownloader import (
@@ -34,10 +35,12 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
 
     def download(self):
         """Download media from submissions"""
+        # get db manager object for inserting and saving data to db
+        db = TPTDatabaseManager()
+
         # used to check if url ends with any of these
         media_extensions = ('.png', '.jpg', '.jpeg', '.webm', '.gif', '.mp4')
         limit = self.limit
-        # we_stuck = False
 
         # counters to keep track of how many submissions we downloaded & more
         download_count, error_count, skip_count = 0, 0, 0
@@ -59,7 +62,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 url = submission['url']
                 title = submission['title']
                 filename = slugify(title)
-                file_path = os.path.join(self.path, filename)
+                # file_path = os.path.join(self.path, filename)
+                file_path = submission['file_path']
                 submission_id = submission['id']
 
                 self.log.info('Attempting to save %s as %s' % (url, file_path))
@@ -86,6 +90,11 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
 
                     else:
                         raise ValueError('Invalid submission URL: %s' % url)
+
+                    # add some data to dict insert data into database
+                    submission['download_date'] = time.time()
+                    # submission['file_path'] = file_path
+                    db.insert(submission)
 
                 except self.Exceptions as e:
                     msg = '%s: %s' % (type(e).__name__, e.args)
