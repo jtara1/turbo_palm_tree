@@ -73,20 +73,16 @@ class GetSubredditSubmissions:
         .. protip:: Check `submission.__dict__` or `submission._api_link` for
         more dictionary keys and values that are usable"""
         submissions = self.get_submissions()
-        # it's possible someone submits a submission then delete their account
-        if s.author:
-            author_name = s.author.name
-        else:
-            author_name = '[deleted]'
 
-        return ({
+        # it's possible someone submits a submission then delete their account
+        return (    
             'subreddit': self.subreddit,
             'url': s.url,
             'fullname': s.fullname,
             'id': s.fullname[3:],
             'title': s.title,
             'score': s.score,
-            'author': author_name
+            'author': s.author.name if s.author else '[deleted]',
             'selftext': s.selftext,
             'submit_date': s.created,
             'comments_url': s.permalink,

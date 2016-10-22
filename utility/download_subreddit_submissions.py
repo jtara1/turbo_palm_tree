@@ -40,9 +40,10 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
 
         # used to check if url ends with any of these
         media_extensions = ('.png', '.jpg', '.jpeg', '.webm', '.gif', '.mp4')
+        # var limit is constant, self.limit is not constant
         limit = self.limit
 
-        # counters to keep track of how many submissions we downloaded & more
+        # counters to keep track of how many submissions downloaded & more
         download_count, error_count, skip_count = 0, 0, 0
         status_variables = [download_count, error_count, skip_count]
 
@@ -66,7 +67,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 file_path = submission['file_path']
                 submission_id = submission['id']
 
-                self.log.info('Attempting to save %s as %s' % (url, file_path))
+                self.log.info('Attempting to save {} as {}'.format(url,
+                    file_path))
 
                 # check domain and call corresponding downloader download
                 # functions or methods
@@ -93,11 +95,10 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
 
                     # add some data to dict insert data into database
                     submission['download_date'] = time.time()
-                    # submission['file_path'] = file_path
                     db.insert(submission)
 
                 except self.Exceptions as e:
-                    msg = '%s: %s' % (type(e).__name__, e.args)
+                    msg = '{}: {}'.format(type(e).__name__, e.args)
                     self.log.warning(msg)
                     print(msg)
                     errors += 1
@@ -108,7 +109,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
             # update count of media successfully downloaded
             download_count += download_count + (
                 self.limit - errors - skips)
-            print('dl count: %s' % download_count)
+            print('dl count: {}'.format(download_count))
             error_count += errors
             skip_count += skips
 
