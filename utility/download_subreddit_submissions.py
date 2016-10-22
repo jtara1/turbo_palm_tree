@@ -21,17 +21,12 @@ from downloaders.deviantart import download_deviantart_url
 
 
 class DownloadSubredditSubmissions(GetSubredditSubmissions):
-    """Downloads subreddit submissions"""
+    """Downloads subreddit submissions
+    .. todo:: Make logging log to it's own seperate file"""
 
     def __init__(self, *args, **kwargs):
         # call constructor of GetSubredditSubmissions class passing args
         super().__init__(*args, **kwargs)
-
-        # setup logging
-        # logging.basicConfig(filename='download_history.log',
-        #     format='%(levelname)s|%(name)s|%(asctime)s|%(message)s',
-        #     datefmt='%m/%d/%y %H:%M:%S',
-        #     level=logging.DEBUG)
         self.log = logging.getLogger('DownloadSubredditSubmissions')
         self.Exceptions = (FileExistsException, FileExistsError,
             ImgurException, HTTPError, ValueError, Exception)
@@ -92,11 +87,6 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     else:
                         raise ValueError('Invalid submission URL: %s' % url)
 
-                # except (FileExistsException, FileExistsError) as e:
-                #     msg = '%s already exists (url = %s)' % (file_path, url)
-                #     self.log.warning(msg)
-                #     print(msg)
-
                 except self.Exceptions as e:
                     msg = '%s: %s' % (type(e).__name__, e.args)
                     self.log.warning(msg)
@@ -112,17 +102,6 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
             print('dl count: %s' % download_count)
             error_count += errors
             skip_count += skips
-
-            # Prevents infinite looping over submissions tht can't be downloaded
-            # but it also can prevent progression in getting next submissions
-            # if the submissions checked are already downloaded
-            # if errors + skips >= self.limit:
-            #     if we_stuck:
-            #         break
-            #     else:
-            #         we_stuck = True
-            # else:
-            #     we_stuck = False
 
             # update attribute limit which is used when getting submissions
             if download_count < limit:

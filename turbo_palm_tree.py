@@ -56,13 +56,3 @@ if __name__ == "__main__":
         download_submissions(subreddit=subreddit,
             path=path, sort_type=args.sort_type, limit=args.limit,
             previous_id=args.prev_id, debug=args.debug)
-
-
-
-    # download_submissions(subreddit=args.subreddit,
-    #     path=args.directory, sort_type=args.sort_type, limit=args.limit,
-    #     previous_id=args.prev_id, debug=args.debug)
-
-    # get_submissions(subreddit=args.subreddit,
-    #     path=args.directory, sort_type=args.sort_type, limit=args.limit,
-    #     previous_id=args.prev_id, debug=args.debug)

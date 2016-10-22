@@ -2,12 +2,29 @@
 
 Download images from subreddits.
 
-Currently supports downloading from the following sites:
+#### Features
+* Pass a subreddit name or text file containing subreddits on each line to be
+processed (see subreddit-list-examples folder for examples)
+* Resume downloading from last submission if same subreddit, directory, and
+sort type is used
+* logging (info, debug, and warning)
+
+##### Optional Features
+* Specify directory to download to
+* Start downloading from beginning with `--restart` or `-r`
+* Get submissions sorted (just as reddit handles sorting)
+* Download image/video from `--limit l` number of submission from (each)
+subreddit (defaults to 5)
+* Pass a reddit id (or fullname) with `--prev-id id` cli option to begin
+downloading after the submission the passed id points to
+
+#### Image/Video scraping from
 * imgur
 * deviantart
 * gfycat
 * reddituploads
 * [any url that ends with a media file extension]
+
 
 ## Requirements
 
@@ -21,7 +38,7 @@ Currently supports downloading from the following sites:
 
 ## Installation
 
-Note, this repo has a few other git submodules so be sure to use `--recursive`
+Note, this repo has git submodules so be sure to use `--recursive`
 option with `git clone` to clone those in addition to this repo.
 
 Clone this repo somewhere, e.g.:
