@@ -12,7 +12,7 @@ if __name__ == "__main__":
     sys.exit(0)
 
 from .parse_arguments import SubredditSortTypes
-from utility.general_utility import slugify
+from utility.general_utility import slugify, convert_to_readable_time
 
 class GetSubredditSubmissions:
     """Return links and data on a number of submission of a given subreddit."""
@@ -84,7 +84,7 @@ class GetSubredditSubmissions:
             'score': s.score,
             'author': s.author.name if s.author else '[deleted]',
             'selftext': s.selftext,
-            'submit_date': s.created,
+            'submit_date': convert_to_readable_time(s.created),
             'comments_url': s.permalink,
             'file_path': os.path.join(self.path, slugify(s.title))
             } for s in submissions)

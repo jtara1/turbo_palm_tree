@@ -4,8 +4,10 @@ import logging
 from .get_subreddit_submissions import GetSubredditSubmissions
 
 # utility
-from .general_utility import slugify
+from .general_utility import slugify, convert_to_readable_time
 from .manage_subreddit_last_id import history_log, process_subreddit_last_id
+
+# database
 from database_manager.tpt_database import TPTDatabaseManager
 
 # Exceptions
@@ -96,7 +98,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                         raise ValueError('Invalid submission URL: %s' % url)
 
                     # add some data to dict insert data into database
-                    submission['download_date'] = time.time()
+                    submission['download_date'] = convert_to_readable_time(
+                        time.time())
                     db.insert(submission)
 
                 except self.Exceptions as e:

@@ -1,5 +1,6 @@
 import unicodedata
 import re
+import time
 
 def slugify(value):
     """Normalizes string, converts to lowercase, removes non-alpha characters,
@@ -11,3 +12,16 @@ def slugify(value):
     value = str(re.sub(r'[^\w\s-]', '', value.decode('ascii')).strip())
     # value = re.sub(r'[-\s]+', '-', value) # not replacing space with hypen
     return value
+
+
+def convert_to_readable_time(time_epoch):
+    """Converts from time since epoch to time in fmt: MONTH-DAY-YR HR:MIN"""
+    return time.strftime('%m-%d-%y %H:%M', time.localtime(time_epoch))
+
+
+if __name__ == "__main__":
+    t = time.time()
+    print(time.localtime())
+    print(time.localtime(time.time()))
+    print(time.time())
+    print(convert_to_readable_time(t))
