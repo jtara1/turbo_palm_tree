@@ -35,6 +35,7 @@ parse_subreddit_list('/MyPath/subreddits.txt', '/MyPath/') = [
 import re
 import os
 from os import getcwd, mkdir
+from .general_utility import get_subreddit_name
 
 def parse_subreddit_list(file_path, base_path=getcwd()):
     """Gets list of subreddits from a file & returns folder for media from each subreddit
@@ -83,7 +84,7 @@ def parse_subreddit_list(file_path, base_path=getcwd()):
                 print('parse_subreddit_list Error: No match found, skipping this iteration.')
                 continue
 
-        subreddit = subreddit_match.group(1)
+        subreddit = get_subreddit_name(subreddit_match.group(1))
         final_path = os.path.join(path, subreddit)
         if not os.path.isdir(final_path):
             mkdir(final_path)

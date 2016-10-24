@@ -2,7 +2,8 @@
 
 - [x] get basic functioning subreddit image downloader
 - [x] cli
-- [ ] integrate database to keep track of aggregate downloads and metadata
+- [x] integrate database to keep track of aggregate downloads and metadata
+- [ ] use submodule `image-match` to check if image is already downloaded
 
 ### Priority 2
 

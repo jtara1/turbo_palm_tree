@@ -1,6 +1,7 @@
 import unicodedata
 import re
 import time
+from praw import Reddit
 
 def slugify(value):
     """Normalizes string, converts to lowercase, removes non-alpha characters,
@@ -19,9 +20,18 @@ def convert_to_readable_time(time_epoch):
     return time.strftime('%m-%d-%y %H:%M', time.localtime(time_epoch))
 
 
+def get_subreddit_name(subreddit):
+    """Get exact (case-matching) subreddit name"""
+    return (Reddit('turbo_palm_tree').get_subreddit(subreddit)
+        ._get_json_dict()['display_name'])
+
+
+
 if __name__ == "__main__":
     t = time.time()
     print(time.localtime())
     print(time.localtime(time.time()))
     print(time.time())
     print(convert_to_readable_time(t))
+    # note the case-matching name is BackgroundArt
+    print(get_subreddit_name('backgroundart'))

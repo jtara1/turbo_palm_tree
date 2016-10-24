@@ -8,6 +8,8 @@ processed (see subreddit-list-examples folder for examples)
 * Resume downloading from last submission if same subreddit, directory, and
 sort type is used
 * logging (info, debug, and warning)
+* metadata recording of each submission in database
+(see file `turbo_palm_tree/database_manager/tpt.db`)
 
 ##### Optional Features
 * Specify directory to download to
@@ -60,7 +62,13 @@ Then run the same python file with desired options and args
 
 examples:
 
+    python3 turbo_palm_tree.py pics
+
+    python3 turbo_plam_tree.py pics /home/james/Downloads/pics -l 5
+
     python3 turbo_palm_tree.py pics my_folder_for_pics --limit 5 --sort-type topall
+
+
 
 #### Command Line Interface
 
@@ -72,18 +80,20 @@ examples:
 
     positional arguments:
       <subreddit>           Subreddit or subreddit list file name
-      <directory>           Directory to save images in
+      <directory>           Directory to save images in; defaults to cwd joined
+                            with name of subreddit
 
     optional arguments:
       -h, --help            show this help message and exit
       --sort-type s, -s s   Sort type for subreddit
       --limit l, --num l, -l l
-                            Number of submissions to download from
+                            Number of submissions to download from; defaults to 5
       --prev-id id, --last-id id
                             Begin downloading from the submission after the given
                             reddit id
       --restart, -r         Begin downloading from the beggining
       --debug, -d           Enable debug mode
+
 
 
 ## Credits
