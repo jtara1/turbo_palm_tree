@@ -1,9 +1,11 @@
-import sys, os, time
+import sys
+import os
 import praw
 import logging
 
 if __name__ == "__main__":
     from parse_arguments import SubredditSortTypes
+
     dir = os.getcwd()
     getter = GetSubredditSubmissions('pics', dir, 'hot', 5)
     getter2 = GetSubredditSubmissions('pics', dir, 'topall', 5)
@@ -14,20 +16,22 @@ if __name__ == "__main__":
 from .parse_arguments import SubredditSortTypes
 from utility.general_utility import slugify, convert_to_readable_time
 
+
 class GetSubredditSubmissions:
     """Return links and data on a number of submission of a given subreddit."""
 
     def __init__(self, subreddit, path, sort_type, limit, previous_id=None,
-                debug=False):
+                 debug=False):
         """
         :param subreddit: name of subreddit
-        :param dir: directory to save images to
+        :param path: directory to save images to
         :param sort_type: 'hot', 'top', 'new', or 'controversial' as base
             `sort_type` in addition 'top' and 'controversial' can have an
             advanced sort option such to sort by time frame
             (e.g.: 'topweek', 'controversialall')
         :param limit: number of submissions to get
         :param previous_id: reddit id (or fullname) to begin downloading after
+        :param debug: enable debug prints and logging
         """
         self.log = logging.getLogger('GetSubredditSubmissions')
 
@@ -49,24 +53,22 @@ class GetSubredditSubmissions:
         # get URL of subreddit for given sort_type
         base_url = 'https://www.reddit.com/r/'
         self.url = '{}{}/{}'.format(base_url, self.subreddit,
-            self.base_sort_type)
+                                    self.base_sort_type)
 
         self.log.debug('attributes = {}'.format(self.__dict__))
-
 
     def get_submissions(self):
         """Returns list of tuples containing submission URLs & title"""
         submissions = self.praw_reddit.get_content(
-            url = self.url,
-            limit = self.limit,
-            params = {
+            url=self.url,
+            limit=self.limit,
+            params={
                 'sort': self.base_sort_type,
                 't': self.time_filter,
                 'after': self.previous_id
             }
         )
         return submissions
-
 
     def get_submissions_info(self):
         """Extracts info from each submission and returns a generator object
@@ -76,28 +78,26 @@ class GetSubredditSubmissions:
 
         # it's possible someone submits a submission then delete their account
         return ({
-            'subreddit': self.subreddit,
-            'url': s.url,
-            'fullname': s.fullname,
-            'id': s.fullname[3:],
-            'title': s.title,
-            'score': s.score,
-            'author': s.author.name if s.author else '[deleted]',
-            'selftext': s.selftext,
-            'submit_date': convert_to_readable_time(s.created),
-            'comments_url': s.permalink,
-            'file_path': os.path.join(self.path, slugify(s.title))
-            } for s in submissions)
-
+                    'subreddit': self.subreddit,
+                    'url': s.url,
+                    'fullname': s.fullname,
+                    'id': s.fullname[3:],
+                    'title': s.title,
+                    'score': s.score,
+                    'author': s.author.name if s.author else '[deleted]',
+                    'selftext': s.selftext,
+                    'submit_date': convert_to_readable_time(s.created),
+                    'comments_url': s.permalink,
+                    'file_path': os.path.join(self.path, slugify(s.title))
+                } for s in submissions)
 
     def set_limit(self, limit):
         """Set attribute limit to :param limit:"""
         self.limit = limit
 
-
     def set_previous_id(self, prev_id):
         """Set attribute previous_id to :param prev_id:"""
         fullname_tag = 't3_'
         if prev_id[:3] != fullname_tag:
-            prev_id = '{ftag}{id}'.format(ftag=fullname_tag,id=prev_id)
+            prev_id = '{tag}{id}'.format(tag=fullname_tag, id=prev_id)
         self.previous_id = prev_id

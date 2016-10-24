@@ -57,7 +57,7 @@ def download_deviantart_url(url, path):
     elif len(urls) > 1:
         if os.path.isfile(path):
             raise ValueError('%s points to a file, but there\'s more than one'
-                ' image to download' % path)
+                             ' image to download' % path)
 
         for index in range(len(urls)):
             # prefix source: https://github.com/alexgisby/imgur-album-downloader
@@ -68,6 +68,7 @@ def download_deviantart_url(url, path):
 
 if __name__ == "__main__":
     from direct_link_download import direct_link_download
+
     user_url = 'http://cartoongirl7.deviantart.com/'
     single_image = 'http://www.deviantart.com/art/Impossible-LOV3-ver-3-35710689'
     # ret = process_deviantart_url(single_image)

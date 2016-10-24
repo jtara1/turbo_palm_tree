@@ -1,4 +1,4 @@
-import os, time, sys
+import time
 import logging
 
 from .get_subreddit_submissions import GetSubredditSubmissions
@@ -32,8 +32,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         super().__init__(*args, **kwargs)
         self.log = logging.getLogger('DownloadSubredditSubmissions')
         self.Exceptions = (FileExistsException, FileExistsError,
-            ImgurException, HTTPError, ValueError, Exception)
-
+                           ImgurException, HTTPError, ValueError, Exception)
 
     def download(self):
         """Download media from submissions"""
@@ -59,7 +58,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
             self.previous_id)
 
         # ensures the amount of submissions downloaded from is equal to limit
-        while(continue_downloading):
+        while continue_downloading:
             errors, skips = 0, 0
             # get submissions (dict containing info) & use data to download
             submissions = self.get_submissions_info()
@@ -72,24 +71,24 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 submission_id = submission['id']
 
                 self.log.info('Attempting to save {} as {}'.format(url,
-                    file_path))
+                                                                   file_path))
 
                 # check domain and call corresponding downloader download
                 # functions or methods
                 try:
                     if url.endswith(media_extensions) or (
-                        'i.reddituploads.com' in url):
+                                'i.reddituploads.com' in url):
                         direct_link_download(url, file_path)
 
                     elif 'imgur.com' in url:
                         imgur = ImgurDownloader(imgur_url=url,
-                            dir_download=self.path, file_name=filename,
-                            delete_dne=True, debug=False)
+                                                dir_download=self.path, file_name=filename,
+                                                delete_dne=True, debug=False)
                         imgur.save_images()
 
                     elif 'gfycat.com' in url:
                         gfycat_id = url.split('/')[-1]
-                        gfycat = Gfycat().more(gfycat_id).download(save_dir)
+                        Gfycat().more(gfycat_id).download(file_path)
 
                     elif 'deviantart.com' in url:
                         download_deviantart_url(url, file_path)
@@ -125,8 +124,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
             # update attribute limit which is used when getting submissions
             if download_count < limit:
                 self.set_limit(limit - download_count)
-            elif (download_count >= limit or not continue_downloading):
-                log_data[self.subreddit][self.sort_type]['last-id']=submission_id
+            elif download_count >= limit or not continue_downloading:
+                log_data[self.subreddit][self.sort_type]['last-id'] = submission_id
                 history_log(self.path, log_filename, 'write', log_data)
                 continue_downloading = False
 

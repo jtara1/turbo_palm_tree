@@ -1,6 +1,6 @@
 """turbo_palm_tree (tpt) database manager"""
 
-import os, time, sys
+import os
 import sqlite3
 
 
@@ -17,7 +17,8 @@ class TPTDatabaseManager:
         self.cursor = self.connection.cursor()
 
         # create table
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS reddit_downloads (
+        self.cursor.execute(
+            """CREATE TABLE IF NOT EXISTS reddit_downloads (
             id integer primary key autoincrement,
             subreddit varchar,
             title varchar,
@@ -30,19 +31,18 @@ class TPTDatabaseManager:
             submit_date time,
             download_date time);""")
 
-
     def insert(self, data):
         """Insert data into table
         :param data: dictionary with keys of table column names and values to
             insert
         """
-        self.cursor.execute("""INSERT INTO reddit_downloads
+        self.cursor.execute(
+            """INSERT INTO reddit_downloads
             (subreddit, title, url, comments_url, submission_id, file_path,
             score, author, submit_date, download_date)
             VALUES (:subreddit, :title, :url, :comments_url, :id, :file_path,
                 :score, :author, :submit_date, :download_date);""",
             data)
-
 
     def print_all(self):
         """select all, fetch all, print all
@@ -52,7 +52,6 @@ class TPTDatabaseManager:
         rows = self.cursor.fetchall()
         for row in rows:
             print(row)
-
 
     def save(self):
         """Save (commit) changed to db"""
@@ -86,5 +85,5 @@ if __name__ == "__main__":
         'file_path': '/home/j/Downloads/walking\ the\ dog.jpg',
         'dl_time': '10/10/16 13:00'
     }
-    db.insert_data(my_data)
+    db.insert(my_data)
     db.close()

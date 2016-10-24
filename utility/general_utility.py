@@ -3,6 +3,7 @@ import re
 import time
 from praw import Reddit
 
+
 def slugify(value):
     """Normalizes string, converts to lowercase, removes non-alpha characters,
     and converts spaces to hyphens.
@@ -23,8 +24,7 @@ def convert_to_readable_time(time_epoch):
 def get_subreddit_name(subreddit):
     """Get exact (case-matching) subreddit name"""
     return (Reddit('turbo_palm_tree').get_subreddit(subreddit)
-        ._get_json_dict()['display_name'])
-
+            ._get_json_dict()['display_name'])
 
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 import sys, os, time
 from argparse import ArgumentParser
 from enum import Enum
-from praw import Reddit
 from .general_utility import get_subreddit_name
+
 
 class SubredditSortTypes(Enum):
     hot = "hot"
@@ -42,7 +42,7 @@ def parse_arguments(args):
     """Parse arguments using the builtin argparse module"""
     parser = ArgumentParser(description='Downloads image files from the'
                             ' specified subreddit or list of subreddits.')
-    parser.add_argument('subreddit', metavar='<subreddit>', type=str
+    parser.add_argument('subreddit', metavar='<subreddit>', type=str,
                         help='Subreddit or subreddit list file name')
     parser.add_argument('directory', metavar='<directory>', nargs='?', type=str,
                         help='Directory to save images in; defaults to cwd \
@@ -75,7 +75,8 @@ def parse_arguments(args):
         parsed_arguments.subreddit=get_subreddit_name(parsed_arguments.subreddit)
         # set default directory if none given
         if not parsed_arguments.directory:
-            parsed_arguments.directory = os.path.join(os.getcwd(),
+            parsed_arguments.directory = os.path.join(
+                os.getcwd(),
                 parsed_arguments.subreddit)
     # if subreddit list passed
     else:
