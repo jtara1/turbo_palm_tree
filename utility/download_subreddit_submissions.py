@@ -1,5 +1,7 @@
 import time
 import logging
+import os
+import glob
 
 from .get_subreddit_submissions import GetSubredditSubmissions
 
@@ -9,6 +11,8 @@ from .manage_subreddit_last_id import history_log, process_subreddit_last_id
 
 # database
 from database_manager.tpt_database import TPTDatabaseManager
+from elasticsearch import Elasticsearch
+from image_match.elasticsearch_driver import SignatureES
 
 # Exceptions
 from downloaders.imgur_downloader.imgurdownloader import (
@@ -30,9 +34,16 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
     def __init__(self, *args, **kwargs):
         # call constructor of GetSubredditSubmissions class passing args
         super().__init__(*args, **kwargs)
+
         self.log = logging.getLogger('DownloadSubredditSubmissions')
         self.Exceptions = (FileExistsException, FileExistsError,
                            ImgurException, HTTPError, ValueError, Exception)
+        # object used to add, search and compare images in elasticsearch for duplicate deletion
+        se = Elasticsearch()
+        self.image_match_ses = SignatureES(se, distance_cutoff=0.40)
+
+        # used to check if url ends with any of these
+        self.media_extensions = ('.png', '.jpg', '.jpeg', '.webm', '.gif', '.mp4')
 
     def download(self):
         """Download media from submissions"""
@@ -40,8 +51,6 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         db = TPTDatabaseManager()
         continue_downloading = True
 
-        # used to check if url ends with any of these
-        media_extensions = ('.png', '.jpg', '.jpeg', '.webm', '.gif', '.mp4')
         # var limit is constant, self.limit is not constant
         limit = self.limit
 
@@ -76,7 +85,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 # check domain and call corresponding downloader download
                 # functions or methods
                 try:
-                    if url.endswith(media_extensions) or (
+                    if url.endswith(self.media_extensions) or (
                                 'i.reddituploads.com' in url):
                         direct_link_download(url, file_path)
 
@@ -112,6 +121,9 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     print(msg)
                     continue_downloading = False
 
+                # update elasticsearch & check if image has been downloaded previously
+                self.remove_duplicates(file_path)
+
             # update previous id downloaded
             self.set_previous_id(submission_id)
 
@@ -130,3 +142,26 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 continue_downloading = False
 
         db.close()
+
+    def remove_duplicates(self, path):
+        """Add image (or directory containing images) to elasticsearch engine then search for duplicates
+        of the added image(s), and delete (both local file and elasticsearch entry) all duplicates
+        keeping the most recently downloaded image.
+        """
+        if os.path.isfile(path) and path.endswith(self.media_extensions):
+            self.image_match_ses.add_image(path, refresh_after=True)
+            matching_images = self.image_match_ses.search_image(path)
+            if len(matching_images) > 1:
+                for item in matching_images:
+                    if item['path'] != path:
+                        self.log.warning('Deleting old duplicate: {}'.format(item['path']))
+                        os.remove(item['path'])
+                        self.image_match_ses.delete_duplicates(path)
+        elif os.path.isdir(path):
+            image_iter = glob.iglob(os.path.join(path, '/*'))
+            try:
+                while True:
+                    self.remove_duplicates(next(image_iter))
+            except StopIteration:
+                pass
+

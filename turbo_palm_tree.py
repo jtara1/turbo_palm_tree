@@ -33,7 +33,8 @@ if __name__ == "__main__":
     args = parse_arguments(['--help'] if len(sys.argv) == 1 else sys.argv[1:])
 
     # setup logging
-    logging.basicConfig(filename='status_report.log',
+    logging.basicConfig(
+        filename='status_report.log',
         format='%(levelname)s | %(name)s | %(asctime)s | %(message)s',
         datefmt='%m/%d/%y %H:%M:%S',
         level=logging.DEBUG if args.debug else logging.INFO)
@@ -54,6 +55,7 @@ if __name__ == "__main__":
         if not os.path.isdir(path):
             os.makedirs(path)
 
-        download_submissions(subreddit=subreddit,
+        download_submissions(
+            subreddit=subreddit,
             path=path, sort_type=args.sort_type, limit=args.limit,
             previous_id=args.prev_id, debug=args.debug)

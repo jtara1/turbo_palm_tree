@@ -35,7 +35,10 @@ downloading after the submission the passed id points to
 #### Modules
 
 * praw
-* BeautifulSoup (bs4)
+* bs4
+* lxml
+* elasticsearch==2.3.0
+* git+https://github.com/jtara1/image-match.git
 
 
 ## Installation
