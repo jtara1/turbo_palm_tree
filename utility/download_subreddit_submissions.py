@@ -2,6 +2,7 @@ import time
 import logging
 import os
 import glob
+from itertools import chain
 
 from .get_subreddit_submissions import GetSubredditSubmissions
 
@@ -164,4 +165,34 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     self.remove_duplicates(next(image_iter))
             except StopIteration:
                 pass
+        else:
+            raise ValueError('{func}: Invalid {arg}'.format(func='get_duplicates', arg='path'))
 
+    def get_duplicates(self, path):
+        """Add image (or directory containing images) to elasticsearch engine then search for duplicates
+        of the added image(s), and delete (both local file and elasticsearch entry) all duplicates
+        keeping the most recently downloaded image.
+        """
+        if os.path.isfile(path) and path.endswith(self.media_extensions):
+            self.image_match_ses.add_image(path, refresh_after=True)
+            matching_images = self.image_match_ses.search_image(path)
+            if len(matching_images) > 1:
+                all_duplicates = (
+                    (item['path'], item['metadata'])
+                    for item in matching_images if path == item['path'])
+                for item in matching_images:
+                    if item['path'] != path:
+                        self.log.warning('Deleting old duplicate: {}'.format(item['path']))
+                        os.remove(item['path'])
+                        self.image_match_ses.delete_duplicates(path)
+        elif os.path.isdir(path):
+            image_iter = glob.iglob(os.path.join(path, '/*'))
+            try:
+                while True:
+                    all_duplicates = chain(
+                        self.get_duplicates(next(image_iter)), self.get_duplicates(next(image_iter)))
+            except StopIteration:
+                pass
+        else:
+            raise ValueError('{func}: Invalid {arg}'.format(func='get_duplicates', arg='path'))
+        return all_duplicates
