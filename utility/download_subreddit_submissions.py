@@ -130,7 +130,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
 
             # update count of media successfully downloaded
             download_count += self.limit - errors - skips
-            print('dl count: {}'.format(download_count))
+            # print('dl count: {}'.format(download_count))
             error_count += errors
             skip_count += skips
 
@@ -143,6 +143,10 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 continue_downloading = False
 
         db.close()
+        print("{} errors occured".format(error_count))
+        print("Downloaded from {} submissions from {}/{}".format(download_count,
+                                                                 self.subreddit,
+                                                                 self.sort_type))
 
     def remove_duplicates(self, path):
         """Add image (or directory containing images) to elasticsearch engine then search for duplicates
@@ -159,6 +163,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                         os.remove(item['path'])
                         self.image_match_ses.delete_duplicates(path)
         elif os.path.isdir(path):
+            # iterator for all files inside of path
             image_iter = glob.iglob(os.path.join(path, '/*'))
             try:
                 while True:
