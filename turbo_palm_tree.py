@@ -59,3 +59,5 @@ if __name__ == "__main__":
             subreddit=subreddit,
             path=path, sort_type=args.sort_type, limit=args.limit,
             previous_id=args.prev_id, debug=args.debug)
+
+    sys.exit(0)

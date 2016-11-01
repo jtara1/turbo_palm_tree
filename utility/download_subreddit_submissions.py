@@ -1,3 +1,4 @@
+import json
 import time
 import logging
 import os
@@ -38,13 +39,15 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
 
         self.log = logging.getLogger('DownloadSubredditSubmissions')
         self.Exceptions = (FileExistsException, FileExistsError,
-                           ImgurException, HTTPError, ValueError, Exception)
+                           ImgurException, HTTPError, ValueError)
         # object used to add, search and compare images in elasticsearch for duplicate deletion
         se = Elasticsearch()
         self.image_match_ses = SignatureES(se, distance_cutoff=0.40)
 
         # used to check if url ends with any of these
-        self.media_extensions = ('.png', '.jpg', '.jpeg', '.webm', '.gif', '.mp4')
+        self.image_extensions = ('.png', '.jpg', '.jpeg', '.gif')
+        video_extensions = ('.webm', '.mp4')
+        self.media_extensions = tuple(chain(self.image_extensions, video_extensions))
 
     def download(self):
         """Download media from submissions"""
@@ -80,11 +83,10 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 file_path = submission['file_path']
                 submission_id = submission['id']
 
-                self.log.info('Attempting to save {} as {}'.format(url,
-                                                                   file_path))
+                self.log.info('Attempting to save {} as {}'.format(url, file_path))
 
-                # check domain and call corresponding downloader download
-                # functions or methods
+
+                # check domain and call corresponding downloader download functions or methods
                 try:
                     if url.endswith(self.media_extensions) or (
                                 'i.reddituploads.com' in url):
@@ -104,11 +106,23 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                         download_deviantart_url(url, file_path)
 
                     else:
-                        raise ValueError('Invalid submission URL: %s' % url)
+                        raise ValueError('Invalid submission URL: {}'.format(url))
+
+                    time.sleep(3)  # sometimes files get referenced before they're actually saved locally
+
+                    creation_time = os.path.getctime(file_path)
+                    # update elasticsearch & check if image has been downloaded previously
+                    metadata = {'source_url': url, 'creation_time': creation_time}
+                    # self.image_match_ses.add_image(
+                    #     file_path,
+                    #     metadata={'source_url': url, 'creation_time': creation_time},
+                    #     refresh_after=True)
+                    duplicates = self.get_duplicates(file_path, metadata, delete_duplicates=True)
+                    print('DUPLICATES: {}'.format(duplicates))
+                    # self.write_to_file(data=list(self.get_duplicates(file_path)))
 
                     # add some data to dict insert data into database
-                    submission['download_date'] = convert_to_readable_time(
-                        time.time())
+                    submission['download_date'] = convert_to_readable_time(creation_time)
                     db.insert(submission)
 
                 except self.Exceptions as e:
@@ -122,15 +136,11 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     print(msg)
                     continue_downloading = False
 
-                # update elasticsearch & check if image has been downloaded previously
-                self.remove_duplicates(file_path)
-
             # update previous id downloaded
             self.set_previous_id(submission_id)
 
             # update count of media successfully downloaded
             download_count += self.limit - errors - skips
-            # print('dl count: {}'.format(download_count))
             error_count += errors
             skip_count += skips
 
@@ -148,56 +158,58 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                                                                  self.subreddit,
                                                                  self.sort_type))
 
-    def remove_duplicates(self, path):
+    def get_duplicates(self, path, metadata=None, delete_duplicates=False):
         """Add image (or directory containing images) to elasticsearch engine then search for duplicates
-        of the added image(s), and delete (both local file and elasticsearch entry) all duplicates
-        keeping the most recently downloaded image.
+        of the added image(s), and return duplicate file data (local file)
+        :param path: path that points to an image file or directory containing image files
+        :param metadata: (dictionary) contains data related to path
+        :param delete_duplicates: delete BOTH all but one of local files and entries in elasticsearch that are
+            matched as duplicates
+        .. todo::
+            1. use git submodule that verifies file is an image
+            2. update image-match module so that all entries except the most recent one are deleted
         """
-        if os.path.isfile(path) and path.endswith(self.media_extensions):
-            self.image_match_ses.add_image(path, refresh_after=True)
-            matching_images = self.image_match_ses.search_image(path)
-            if len(matching_images) > 1:
-                for item in matching_images:
-                    if item['path'] != path:
-                        self.log.warning('Deleting old duplicate: {}'.format(item['path']))
-                        os.remove(item['path'])
-                        self.image_match_ses.delete_duplicates(path)
-        elif os.path.isdir(path):
-            # iterator for all files inside of path
-            image_iter = glob.iglob(os.path.join(path, '/*'))
+        all_duplicates = []
+        # if path points to a directory
+        if os.path.isdir(path):
+            file_iter = glob.iglob(os.path.join(path, '*'))
             try:
                 while True:
-                    self.remove_duplicates(next(image_iter))
+                    all_duplicates.extend(self._get_duplicates_of_file(next(file_iter), metadata, delete_duplicates))
             except StopIteration:
                 pass
-        else:
-            raise ValueError('{func}: Invalid {arg}'.format(func='get_duplicates', arg='path'))
-
-    def get_duplicates(self, path):
-        """Add image (or directory containing images) to elasticsearch engine then search for duplicates
-        of the added image(s), and delete (both local file and elasticsearch entry) all duplicates
-        keeping the most recently downloaded image.
-        """
-        if os.path.isfile(path) and path.endswith(self.media_extensions):
-            self.image_match_ses.add_image(path, refresh_after=True)
-            matching_images = self.image_match_ses.search_image(path)
-            if len(matching_images) > 1:
-                all_duplicates = (
-                    (item['path'], item['metadata'])
-                    for item in matching_images if path == item['path'])
-                for item in matching_images:
-                    if item['path'] != path:
-                        self.log.warning('Deleting old duplicate: {}'.format(item['path']))
-                        os.remove(item['path'])
-                        self.image_match_ses.delete_duplicates(path)
-        elif os.path.isdir(path):
-            image_iter = glob.iglob(os.path.join(path, '/*'))
-            try:
-                while True:
-                    all_duplicates = chain(
-                        self.get_duplicates(next(image_iter)), self.get_duplicates(next(image_iter)))
-            except StopIteration:
-                pass
+        # elif path points to a file
+        elif os.path.isfile(path):
+            self._get_duplicates_of_file(path, metadata, delete_duplicates)
         else:
             raise ValueError('{func}: Invalid {arg}'.format(func='get_duplicates', arg='path'))
         return all_duplicates
+
+    def _get_duplicates_of_file(self, path, metadata=None, delete_duplicates=False):  # if path points to a file
+        all_duplicates = []
+        print('GETTING DUP OF : {}'.format(path))
+        if os.path.isfile(path):
+            self.image_match_ses.add_image(path, metadata=metadata, refresh_after=True)
+            matching_images = self.image_match_ses.search_image(path)
+            if len(matching_images) > 1:
+                all_duplicates = [
+                    (item['path'], item['metadata'])
+                    for item in matching_images]
+                if delete_duplicates:
+                    for image_path, metadata in all_duplicates:
+                        self.log.info('Deleting old duplicate: {}'.format(image_path))
+                        os.remove(image_path)  # delete local file
+                        self.image_match_ses.delete_duplicates(path)  # delete all but one entries in elasticsearch
+        else:
+            raise ValueError('{func}: Invalid {arg}'.format(func='_get_duplicates_of_image', arg='path'))
+        return all_duplicates
+
+    def write_to_file(self, path=os.path.join(os.getcwd(), str(int(time.time()))), data=None):
+        """
+        :param path: path (including filename) of file that's to be written to
+        :param data: data that gets written in file
+        """
+        if not data:
+            return
+        with open(path, 'w') as f:
+            f.write(json.dumps(data))

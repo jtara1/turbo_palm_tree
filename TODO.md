@@ -8,6 +8,7 @@
 ### Priority 2
 
 - [x] basic logging
+- [ ] script to start `elasticsearh` service on Linux if not already running
 - [ ] unit tests
 - [ ] add more submodules to `downloaders` folder to support downloading from
 a wider variety of websites
