@@ -47,12 +47,12 @@ def parse_arguments(args):
     parser.add_argument('directory', metavar='<directory>', nargs='?', type=str,
                         help='Directory to save images in; defaults to cwd \
                             joined with name of subreddit')
-    parser.add_argument('--sort-type', '-s', metavar='s', required=False,
+    parser.add_argument('--sort-type', '-s', metavar='<s>', required=False,
                         default='hot', type=str, help='Sort type for subreddit')
-    parser.add_argument('--limit', '--num', '-l', metavar='l', required=False,
+    parser.add_argument('--limit', '--num', '-l', metavar='<l>', required=False,
                         default=5, type=int, help='Number of submissions to'
                         ' download from; defaults to 5')
-    parser.add_argument('--prev-id', '--last-id', metavar='id', type=str,
+    parser.add_argument('--prev-id', '--last-id', metavar='<id>', type=str,
                         default='', required=False, help='Begin downloading'
                         ' from the submission after the given reddit id')
     parser.add_argument('--restart', '-r', required=False, action='store_false',
