@@ -1,49 +1,31 @@
+import random
 import pytest
-import turbo_palm_tree
-from utility.parse_arguments import parse_arguments
+from utility.parse_arguments import parse_arguments, SubredditSortTypes
 import os
-import sys
 import time
-import itertools
 
 
-subreddit_url = "https://www.reddit.com/r/jtaraTest/"
-subreddit_name = "jtaratest"
-#
-# @pytest.fixture
-# def setup_test():
-#     pass
+class TestClass:
 
-def get_parsed_args():
-    """Returns all combinations of possible sort_type options and one subreddit name for cli (parsed)"""
-    temp_dir = os.path.join(os.getcwd(), 'temp_test_downloads')
-    # if not os.path.isdir(temp_dir):
-    #     os.makedirs(temp_dir)
-    # downloads_dir = os.path.expanduser('~/Downloads')
-    # if not os.path.isdir(downloads_dir):
-    #     os.makedirs(downloads_dir)
+    subreddit_url = "https://www.reddit.com/r/jtaraTest/"
+    subreddit_name = "jtaratest"
 
-    # directories for images to get downloaded to
-    # directories = [temp_dir, downloads_dir]
+    def get_random_parsed_arg(self):
+        """Returns a parsed arg with a random sort type"""
+        def get_random_sort_type():
+            """Return a random sort types drawing from the enum class of all possible sort types"""
+            sort_types = list(st.value for st in SubredditSortTypes)
+            sort_types.extend(SubredditSortTypes.top.advanced_sorts() +
+                              SubredditSortTypes.controversial.advanced_sorts())
+            return sort_types[random.randrange(0, len(sort_types))]
 
-    # all possible valid sort types that can be used via cli
-    time_sort_types = ['', 'hour', 'week', 'month', 'year', 'all']
-    sort_types = ['hot', 'new', 'rising']
-    sort_types.extend(['top'+t for t in time_sort_types])
-    sort_types.extend(['controversial'+t for t in time_sort_types])
+        temp_dir = os.path.join(os.getcwd(), 'temp_test_downloads')
+        sort_type = get_random_sort_type()
+        return sort_type, 'jtaraTest', temp_dir, \
+               parse_arguments(['--sort-type', sort_type, self.subreddit_name, temp_dir])
 
-    sort_types = ['--sort-type '+s_type for s_type in sort_types]
-
-    # all_cli_combinations = [list(zip(x, subreddit_name)) for x in combinations(sort_types, len(sort_types))]
-    all_cli_combinations = [itertools.product(sort_types, ['{} {}'.format(subreddit_name, temp_dir)])]
-    all_parsed_args = []
-    for cli_args in all_cli_combinations:
-        all_parsed_args.append(list(parse_arguments(cli_args)))
-
-    # args1 = ['--sort-type %s' % sort_types[0], subreddit_name, directories[1].replace('\n', '')]
-    # cli_args = parse_arguments(args1)
-    return all_parsed_args
-
-def test_duplicates():
-    all_parsed_args = get_parsed_args()
-    pass
+    def test_parsed_args(self):
+        sort_type, sr_name, path, args = self.get_random_parsed_arg()
+        assert sort_type == args.sort_type
+        assert args.subreddit == sr_name
+        assert path == args.directory

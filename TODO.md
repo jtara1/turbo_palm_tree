@@ -7,8 +7,8 @@
 
 ### Priority 2
 
-- [x] basic logging
-- [ ] unit tests
+- [x] logging
+- [x] pytest
 - [ ] add more submodules to `downloaders` folder to support downloading from
 a wider variety of websites
 

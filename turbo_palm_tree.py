@@ -30,6 +30,7 @@ def download_submissions(*args, **kwargs):
 
 if __name__ == "__main__":
     # pass raw command line args to parse_arguments function
+    print(sys.argv[1:])
     args = parse_arguments(['--help'] if len(sys.argv) == 1 else sys.argv[1:])
 
     # setup logging
