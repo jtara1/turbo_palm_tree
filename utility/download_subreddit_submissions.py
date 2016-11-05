@@ -41,10 +41,10 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         self.Exceptions = (FileExistsException, FileExistsError,
                            ImgurException, HTTPError, ValueError)
         # object used to add, search and compare images in elasticsearch for duplicate deletion
-        se = Elasticsearch()
+        self.es = Elasticsearch()
         # index, doc_type = 'tpt_test', 'image'
-        index, doc_type = 'images', 'image'
-        self.image_match_ses = SignatureES(se, index=index, doc_type=doc_type, distance_cutoff=0.40)
+        self.es_index, self.es_doc_type = 'images', 'image'
+        self.image_match_ses = SignatureES(self.es, index=self.es_index, doc_type=self.es_doc_type, distance_cutoff=0.40)
 
         # used to check if url ends with any of these
         self.image_extensions = ('.png', '.jpg', '.jpeg', '.gif')
@@ -112,7 +112,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     else:
                         raise ValueError('Invalid submission URL: {}'.format(url))
 
-                    time.sleep(3)  # sometimes files get referenced before they're actually saved locally
+                    time.sleep(8)  # sometimes files get referenced before they're actually saved locally
 
                     creation_time = os.path.getctime(file_path)
                     # update elasticsearch & check if image has been downloaded previously
@@ -191,21 +191,29 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
     def _get_duplicates_of_file(self, path, metadata=None, delete_duplicates=False):  # if path points to a file
         all_duplicates = []
         print('GETTING DUP OF : {}'.format(path))
-        if os.path.isfile(path):
-            self.image_match_ses.add_image(path, metadata=metadata, refresh_after=True)
-            matching_images = self.image_match_ses.search_image(path)
-            if len(matching_images) > 1:
-                all_duplicates = [
-                    (item['path'], item['metadata'])
-                    for item in matching_images]
-                if delete_duplicates:
-                    for image_path, metadata in all_duplicates:
-                        if image_path != path:
-                            self.log.info('Deleting old duplicate: {}'.format(image_path))
-                            os.remove(image_path)  # delete local file
-                    self.image_match_ses.delete_duplicates(path, refresh_after=True)  # delete all but one entries in elasticsearch
-        else:
-            raise ValueError('{func}: Invalid {arg}'.format(func='_get_duplicates_of_image', arg='path'))
+        self.image_match_ses.add_image(path, metadata=metadata, refresh_after=True)
+        matching_images = self.image_match_ses.search_image(path)
+        if len(matching_images) > 1:
+            all_duplicates = [
+                {
+                    'path': item['path'],
+                    'metadata': item['metadata'],
+                    'es_id': item['id'],
+                }
+                for item in matching_images]
+            # print('\n{}\n'.format(all_duplicates))
+
+            if delete_duplicates:
+                for duplicate in all_duplicates:
+                    if path != duplicate['path']:
+                        self.log.info('Deleting old duplicate: {}'.format(duplicate['path']))
+                        os.remove(duplicate['path'])  # delete local file
+                        self.es.delete(index=self.es_index,
+                                       doc_type=self.es_doc_type,
+                                       id=duplicate['es_id'], refresh=True)  # delete entry in elasticsearch
+                        # self.image_match_ses.delete_image(duplicate['path'], refresh_after=True)
+                # self.image_match_ses.delete_duplicates(path)
+
         return all_duplicates
 
     def write_to_file(self, path=os.path.join(os.getcwd(), str(int(time.time()))), data=None):
