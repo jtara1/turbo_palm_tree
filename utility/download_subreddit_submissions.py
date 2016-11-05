@@ -42,7 +42,9 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                            ImgurException, HTTPError, ValueError)
         # object used to add, search and compare images in elasticsearch for duplicate deletion
         se = Elasticsearch()
-        self.image_match_ses = SignatureES(se, distance_cutoff=0.40)
+        # index, doc_type = 'tpt_test', 'image'
+        index, doc_type = 'images', 'image'
+        self.image_match_ses = SignatureES(se, index=index, doc_type=doc_type, distance_cutoff=0.40)
 
         # used to check if url ends with any of these
         self.image_extensions = ('.png', '.jpg', '.jpeg', '.gif')
@@ -79,12 +81,11 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 url = submission['url']
                 title = submission['title']
                 filename = slugify(title)
-                # file_path = os.path.join(self.path, filename)
                 file_path = submission['file_path']
                 submission_id = submission['id']
+                final_filenames = []  # if an entire imgur album was downloaded, filenames will be stored here
 
                 self.log.info('Attempting to save {} as {}'.format(url, file_path))
-
 
                 # check domain and call corresponding downloader download functions or methods
                 try:
@@ -96,7 +97,10 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                         imgur = ImgurDownloader(imgur_url=url,
                                                 dir_download=self.path, file_name=filename,
                                                 delete_dne=True, debug=False)
-                        imgur.save_images()
+                        final_filenames, skipped = imgur.save_images()
+                        if len(final_filenames) == 1:
+                            filename = final_filenames[0]
+                            file_path = os.path.join(os.path.dirname(file_path), filename)
 
                     elif 'gfycat.com' in url:
                         gfycat_id = url.split('/')[-1]
@@ -117,6 +121,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     #     file_path,
                     #     metadata={'source_url': url, 'creation_time': creation_time},
                     #     refresh_after=True)
+
+                    self.image_match_ses.es_delete_all()  #### DEBUG
                     duplicates = self.get_duplicates(file_path, metadata, delete_duplicates=True)
                     print('DUPLICATES: {}'.format(duplicates))
                     # self.write_to_file(data=list(self.get_duplicates(file_path)))
@@ -173,11 +179,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         # if path points to a directory
         if os.path.isdir(path):
             file_iter = glob.iglob(os.path.join(path, '*'))
-            try:
-                while True:
-                    all_duplicates.extend(self._get_duplicates_of_file(next(file_iter), metadata, delete_duplicates))
-            except StopIteration:
-                pass
+            for file in file_iter:
+                all_duplicates.extend(self._get_duplicates_of_file(file, metadata, delete_duplicates))
         # elif path points to a file
         elif os.path.isfile(path):
             self._get_duplicates_of_file(path, metadata, delete_duplicates)
@@ -197,9 +200,10 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     for item in matching_images]
                 if delete_duplicates:
                     for image_path, metadata in all_duplicates:
-                        self.log.info('Deleting old duplicate: {}'.format(image_path))
-                        os.remove(image_path)  # delete local file
-                        self.image_match_ses.delete_duplicates(path)  # delete all but one entries in elasticsearch
+                        if image_path != path:
+                            self.log.info('Deleting old duplicate: {}'.format(image_path))
+                            os.remove(image_path)  # delete local file
+                    self.image_match_ses.delete_duplicates(path, refresh_after=True)  # delete all but one entries in elasticsearch
         else:
             raise ValueError('{func}: Invalid {arg}'.format(func='_get_duplicates_of_image', arg='path'))
         return all_duplicates
