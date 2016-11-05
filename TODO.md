@@ -7,8 +7,10 @@
 
 ### Priority 2
 
-- [x] logging
-- [x] pytest
+- [ ] build on `ImageMatchManager` class to automate starting elasticsearch service,
+creating index for es
+- [x] setup logging
+- [x] setup pytest
 - [ ] add more submodules to `downloaders` folder to support downloading from
 a wider variety of websites
 
