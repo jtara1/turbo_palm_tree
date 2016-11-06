@@ -1,5 +1,8 @@
 #turbo_palm_tree
-database_manager/tpt.db
+turbo_palm_tree/database_manager/tpt.db
+turbo_palm_tree/downloaders/imgur_downloader/my-downloads/*
+.directory
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

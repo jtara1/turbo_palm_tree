@@ -3,8 +3,8 @@
 """Module to parse or download images from deviantart page.
 The basis of this was built by
 [rachmadaniHaryono](https://github.com/rachmadaniHaryono) with additions and
-modifications from jtara1 & contributers of [turbo_palm_tree]
-(https://github.com/jtara1/turbo_palm_tree)
+modifications from jtara1 & contributers of [tpt]
+(https://github.com/jtara1/tpt)
 """
 try:  # py2
     from urllib2 import urlopen

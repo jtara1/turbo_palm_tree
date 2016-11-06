@@ -37,7 +37,7 @@ class GetSubredditSubmissions:
 
         self.subreddit = subreddit
         self.sort_type = sort_type
-        self.praw_reddit = praw.Reddit(user_agent='turbo_palm_tree')
+        self.praw_reddit = praw.Reddit(user_agent='tpt')
         self.limit = limit
         self.previous_id = '' if not previous_id else (
             self.set_previous_id(previous_id))

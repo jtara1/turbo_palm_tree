@@ -1,4 +1,4 @@
-import sys, os, time
+import os
 from argparse import ArgumentParser
 from enum import Enum
 from .general_utility import get_subreddit_name

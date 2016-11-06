@@ -21,8 +21,8 @@ class TestClass:
 
         temp_dir = os.path.join(os.getcwd(), 'temp_test_downloads')
         sort_type = get_random_sort_type()
-        return sort_type, 'jtaraTest', temp_dir, \
-               parse_arguments(['--sort-type', sort_type, self.subreddit_name, temp_dir])
+        return (sort_type, 'jtaraTest', temp_dir,
+                parse_arguments(['--sort-type', sort_type, self.subreddit_name, temp_dir]))
 
     def test_parsed_args(self):
         sort_type, sr_name, path, args = self.get_random_parsed_arg()

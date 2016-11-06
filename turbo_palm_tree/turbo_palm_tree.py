@@ -30,7 +30,6 @@ def download_submissions(*args, **kwargs):
 
 if __name__ == "__main__":
     # pass raw command line args to parse_arguments function
-    print(sys.argv[1:])
     args = parse_arguments(['--help'] if len(sys.argv) == 1 else sys.argv[1:])
 
     # setup logging
@@ -39,7 +38,7 @@ if __name__ == "__main__":
         format='%(levelname)s | %(name)s | %(asctime)s | %(message)s',
         datefmt='%m/%d/%y %H:%M:%S',
         level=logging.DEBUG if args.debug else logging.INFO)
-    log = logging.getLogger('turbo_palm_tree')
+    log = logging.getLogger('tpt')
     log.info('cli args = %s' % args)
 
     # check if subreddit or local file for list of subreddits was passed
