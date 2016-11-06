@@ -1,6 +1,6 @@
 import random
 import pytest
-from utility.parse_arguments import parse_arguments, SubredditSortTypes
+from turbo_palm_tree.utility.parse_arguments import parse_arguments, SubredditSortTypes
 import os
 import time
 
