@@ -114,7 +114,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     else:
                         raise ValueError('Invalid submission URL: {}'.format(url))
 
-                    time.sleep(7)  # sometimes files get referenced before they're actually saved locally
+                    # time.sleep(7)  # sometimes files get referenced before they're actually saved locally
 
                     creation_time = os.path.getctime(file_path)
                     # update elasticsearch & check if image has been downloaded previously
@@ -126,9 +126,10 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
 
                     self.im.es_delete_all()  #### DEBUG
                     # duplicates = self.get_duplicates(file_path, metadata, delete_duplicates=True)
-                    duplicates = self.im.get_duplicates(file_path, metadata, delete_duplicates=True)
-                    print('DUPLICATES: {}'.format(duplicates))
+                    # duplicates = self.im.get_duplicates(file_path, metadata, delete_duplicates=True)
+                    # print('DUPLICATES: {}'.format(duplicates))
                     # self.write_to_file(data=list(self.get_duplicates(file_path)))
+                    self.im.delete_duplicates(file_path, metadata)  # add img, locate & delete older duplicates
 
                     # add some data to dict insert data into database
                     submission['download_date'] = convert_to_readable_time(creation_time)

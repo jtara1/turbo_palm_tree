@@ -19,70 +19,82 @@ class ImageMatchManager(SignatureES):
             each other (<= 0.40 is the threshold for identical images)
         .. todo:: automatically create the index & doc_type if not found in elasticsearch
         """
-        # self.index = index
-        # self.doc_type = doc_type
         self.log = logging.getLogger(type(self).__name__)
         es = Elasticsearch(index=index, doc_type=doc_type)
         # super(SignatureES, self).__init__(es=es, index=index, doc_type=doc_type, timeout=timeout, size=size,
         #                                   *args, **kwargs)
         super().__init__(es=es, index=index, doc_type=doc_type, *args, **kwargs)
 
-    def get_duplicates(self, path, metadata=None, delete_duplicates=False):
-        """Add image (or directory containing images) to elasticsearch engine then search for duplicates
-        of the added image(s), and return duplicate file data (local file)
+    def get_duplicates(self, path, metadata=None):
+        """Does the following:
+        1. add image (or directory containing images) to elasticsearch engine (one at a time)
+        2. search for duplicates of the added image(s) & yield the image path & the image duplicates
+
         :param path: path that points to an image file or directory containing image files
-        :param metadata: (dictionary) contains data related to path
-        :param delete_duplicates: delete BOTH all but one of local files and entries in elasticsearch that are
-            matched as duplicates
+        :param metadata: (dictionary) contains data related to image
+
+        :return: current image path and the list of duplicate images matched for the current image
+            If there are no matched images (other than a match for the image just inserted) then `None` is returned in
+            place of list of duplicate images
+        :rtype: generator yielding tuple containing (string, list of dictionaries or None)
+
         .. todo::
             1. use git submodule that verifies file is an image
-            2. update image-match module so that all entries except the most recent one are deleted
         """
-        all_duplicates = []
         # if path points to a directory
         if os.path.isdir(path):
             files = sorted(glob.glob(os.path.join(path, '*')))
             for file in files:
-                all_duplicates.extend(self._get_duplicates_of_file(file, metadata, delete_duplicates))
+                yield file, self._get_duplicates_of_file(file, metadata)
         # elif path points to a file
         elif os.path.isfile(path):
-            return self._get_duplicates_of_file(path, metadata, delete_duplicates)
+            yield path, self._get_duplicates_of_file(path, metadata)
         else:
             raise ValueError('{func}: Invalid {arg}'.format(func='get_duplicates', arg='path'))
-        return all_duplicates
 
-    def _get_duplicates_of_file(self, path, metadata=None, delete_duplicates=False):  # if path points to a file
-        all_duplicates = []
-        print('GETTING DUP OF : {}'.format(path))
+    def _get_duplicates_of_file(self, path, metadata=None):
+        """Helper method for `get_duplicates` method
+        add an individual image to es, search es for identical images & return the list of dictionaries
+        of each duplicate image
+        """
+        # print('GETTING DUP OF : {}'.format(path))
         self.add_image(path, metadata=metadata, refresh_after=True)
         try:
             matching_images = self.search_image(path)
         except FileNotFoundError:
-            return all_duplicates
+            self.log.warning('_get_duplicates_of_file: {} NOT FOUND'.format(path))
+            return
         if len(matching_images) > 1:
-            all_duplicates = [
-                {
+            return list({
                     'path': item['path'],
                     'metadata': item['metadata'],
-                    'es_id': item['id'],
-                }
-                for item in matching_images]
-
-            if delete_duplicates:
-                for duplicate in all_duplicates:
-                    if path != duplicate['path']:
-                        self.log.info('Deleting old duplicate: {}'.format(duplicate['path']))
-                        os.remove(duplicate['path'])  # delete local file
-                        self.es.delete(index=self.index,
-                                       doc_type=self.doc_type,
-                                       id=duplicate['es_id'], refresh=True)  # delete entry in elasticsearch
-        return all_duplicates
+                    'es_id': item['id']}
+                    for item in matching_images)
+        return
 
     def delete_duplicates(self, path, metadata=None):
-        """Several steps are done within this method:
+        """Several steps are done within this method (steps 1 & 2 are done within the `get_duplicates` method):
         1. adds the image from the :param path: to es
-        2. search for matching images of :param path: in es (with distance <= 40)
-        Search for image in es then all delete local files (except for the one given in parameter path)
-        and all duplicates in es (except for the one whose path value is equal to the argument of path"""
-        duplicates = self.get_duplicates(path, metadata)
-        pass  # ...
+        2. search for matching images of :param path: in es (with distance <= 0.40)
+        3. delete all except for the most recent copy of the duplicate image (both local file & entry in es)
+
+        :param path: path (url or local file (or folder) path) - should be an image or directory containing images
+        :param metadata: (dictionary) this data is attached to image (or each image) when the path(s) are inserted into
+            es
+        """
+        data = self.get_duplicates(path, metadata)  # adds image(s) to es & returns all matching images found
+        # if len(duplicates) == 1:
+        #     return
+        for file_path, duplicates in data:
+            if duplicates is None:
+                continue
+
+            for duplicate in duplicates:
+                # print('path: {}'.format(file_path))
+                # print('duplicate: {}'.format(duplicate))
+                if file_path != duplicate['path']:
+                    self.log.info('Deleting old duplicate: {}'.format(duplicate['path']))
+                    os.remove(duplicate['path'])  # delete local file
+                    self.es.delete(index=self.index,
+                                   doc_type=self.doc_type,
+                                   id=duplicate['es_id'], refresh=True)  # delete entry in elasticsearch
