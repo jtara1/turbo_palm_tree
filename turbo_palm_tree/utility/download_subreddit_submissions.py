@@ -10,12 +10,14 @@ from .get_subreddit_submissions import GetSubredditSubmissions
 # utility
 from .general_utility import slugify, convert_to_readable_time
 from .manage_subreddit_last_id import history_log, process_subreddit_last_id
-from .image_match_manager import ImageMatchManager
+from colorama import init as colorama_init
+from colorama import Fore, Back, Style
+
+colorama_init()
 
 # database
 from database_manager.tpt_database import TPTDatabaseManager
-# from elasticsearch import Elasticsearch
-# from image_match.elasticsearch_driver import SignatureES
+from .image_match_manager import ImageMatchManager
 
 # Exceptions
 from downloaders.imgur_downloader.imgurdownloader import (
@@ -155,10 +157,9 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         # continue_downloading is false
         self.db.close()
         # self.im.close()
-        print("{} errors occured".format(error_count))
-        print("Downloaded from {} submissions from {}/{}".format(download_count,
-                                                                 self.subreddit,
-                                                                 self.sort_type))
+        print("{}{} errors occured".format(Fore.YELLOW, error_count))
+        print("{}Downloaded from {} submissions from {}/{}{reset}".format(Fore.GREEN, download_count, self.subreddit,
+                                                                          self.sort_type, reset=Style.RESET_ALL))
 
     def write_to_file(self, path=os.path.join(os.getcwd(), str(int(time.time()))), data=None):
         """

@@ -39,6 +39,7 @@ downloading after the submission the passed id points to
 * lxml
 * elasticsearch==2.3.0
 * git+https://github.com/jtara1/image-match.git
+* colorama
 
 
 ## Installation
@@ -48,7 +49,7 @@ option with `git clone` to clone those in addition to this repo.
 
 Clone this repo somewhere, e.g.:
 
-    git clone --recursive https://github.com/jtara1/turbo_palm_tree && cd turbo_palm_tree
+    git clone --recursive https://github.com/jtara1/turbo_palm_tree
 
 Install Python 3 then the needed [modules](#Modules)
 
@@ -56,6 +57,8 @@ Install Python 3 then the needed [modules](#Modules)
 
 
 ## Usage
+
+First, change directory to where `turbo_palm_tree.py` is located.
 
 Run this to check CLI args and options
 
