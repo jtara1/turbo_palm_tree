@@ -1,8 +1,10 @@
 import glob
 import logging
 import os
+import sys
+from subprocess import call
 
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, NotFoundError, ElasticsearchException
 from image_match.elasticsearch_driver import SignatureES
 
 
@@ -11,19 +13,20 @@ class ImageMatchManager(SignatureES):
     elasticsearch (es) engine (contains all images that have been inserted)
     """
 
-    def __init__(self, index='images', doc_type='image', *args, **kwargs):
+    def __init__(self, index='images', *args, **kwargs):
         """
         :param index: index used for elasticsearch
-        :param doc_type: doc_type used for elasticsearch
         :param distance_cutoff: the closer the distance is to 0.0, the more similar the two images in comparison are to
             each other (<= 0.40 is the threshold for identical images)
         .. todo:: automatically create the index & doc_type if not found in elasticsearch
         """
         self.log = logging.getLogger(type(self).__name__)
-        es = Elasticsearch(index=index, doc_type=doc_type)
-        # super(SignatureES, self).__init__(es=es, index=index, doc_type=doc_type, timeout=timeout, size=size,
-        #                                   *args, **kwargs)
-        super().__init__(es=es, index=index, doc_type=doc_type, *args, **kwargs)
+        # es = Elasticsearch(index=index, doc_type=doc_type)
+        es = Elasticsearch()
+        es.indices.create(index=index, ignore=[400, 404, 403])
+        es.indices.open(index=index)
+        super().__init__(es=es, index=index, *args, **kwargs)
+        # print('IMM index: {}'.format(index))
 
     def get_duplicates(self, path, metadata=None):
         """Does the following:
@@ -66,10 +69,10 @@ class ImageMatchManager(SignatureES):
             return
         if len(matching_images) > 1:
             return list({
-                    'path': item['path'],
-                    'metadata': item['metadata'],
-                    'es_id': item['id']}
-                    for item in matching_images)
+                            'path': item['path'],
+                            'metadata': item['metadata'],
+                            'es_id': item['id']}
+                        for item in matching_images)
         return
 
     def delete_duplicates(self, path, metadata=None):
@@ -94,7 +97,17 @@ class ImageMatchManager(SignatureES):
                 # print('duplicate: {}'.format(duplicate))
                 if file_path != duplicate['path']:
                     self.log.info('Deleting old duplicate: {}'.format(duplicate['path']))
-                    os.remove(duplicate['path'])  # delete local file
-                    self.es.delete(index=self.index,
-                                   doc_type=self.doc_type,
-                                   id=duplicate['es_id'], refresh=True)  # delete entry in elasticsearch
+                    try:
+                        os.remove(duplicate['path'])  # delete local file
+                    except FileNotFoundError:
+                        self.log.warning('{} does not exist (as a local file)'.format(duplicate['path']))
+                    try:
+                        self.es.delete(index=self.index,
+                                       doc_type=self.doc_type,
+                                       id=duplicate['es_id'], refresh=True)  # delete entry in elasticsearch
+                    except NotFoundError:
+                        self.log.warning('_id: {} not found in elasticsearch'.format(duplicate['es_id']))
+
+    def close(self):
+        """Closes the connection to the elasticsearch index"""
+        self.es.indices.close(index=self.index)

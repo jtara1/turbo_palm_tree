@@ -1,7 +1,10 @@
 import unicodedata
 import re
 import time
+import sys
 from praw import Reddit
+from elasticsearch import Elasticsearch, ElasticsearchException
+from subprocess import call
 
 
 def slugify(value):
@@ -23,8 +26,22 @@ def convert_to_readable_time(time_epoch):
 
 def get_subreddit_name(subreddit):
     """Get exact (case-matching) subreddit name"""
-    return (Reddit('tpt').get_subreddit(subreddit)
-            ._get_json_dict()['display_name'])
+    return (Reddit('tpt').get_subreddit(subreddit)._get_json_dict()['display_name'])
+
+
+def start_elasticsearch():
+    """Starts elsaticsearch service if not already running & sleeps until it has finished starting up"""
+    es = Elasticsearch()
+    try:
+        es.ping()
+    except ElasticsearchException:
+        if sys.platform.startswith(('win32', 'cygwin')):
+            raise NotImplementedError('Could not connect to elasticsearch service & there\'s no implementation for '
+                                      'windows OS to start the elasticsearch service')
+        return_code = call(['sudo', 'service', 'elasticsearch', 'start'])
+        while return_code is None:
+            print('waiting')
+            time.sleep(0.5)
 
 
 if __name__ == "__main__":

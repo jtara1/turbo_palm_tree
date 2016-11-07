@@ -4,7 +4,8 @@
 
 """Initializes program"""
 
-import os, sys, time
+import os
+import sys
 import logging
 import pprint
 
@@ -12,6 +13,7 @@ from utility.parse_arguments import parse_arguments
 from utility.get_subreddit_submissions import GetSubredditSubmissions
 from utility.download_subreddit_submissions import DownloadSubredditSubmissions
 from utility.parse_subreddit_list import parse_subreddit_list
+from utility.general_utility import start_elasticsearch
 
 
 def get_submissions(*args, **kwargs):
@@ -40,6 +42,9 @@ if __name__ == "__main__":
         level=logging.DEBUG if args.debug else logging.INFO)
     log = logging.getLogger('tpt')
     log.info('cli args = %s' % args)
+
+    # start elasticsearch service if not already started
+    start_elasticsearch()
 
     # check if subreddit or local file for list of subreddits was passed
     list_file_extensions = ('.txt')
