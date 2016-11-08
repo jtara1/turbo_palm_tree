@@ -2,7 +2,6 @@ import json
 import time
 import logging
 import os
-import glob
 from itertools import chain
 
 from .get_subreddit_submissions import GetSubredditSubmissions
@@ -11,7 +10,7 @@ from .get_subreddit_submissions import GetSubredditSubmissions
 from .general_utility import slugify, convert_to_readable_time
 from .manage_subreddit_last_id import history_log, process_subreddit_last_id
 from colorama import init as colorama_init
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
 
 colorama_init()
 
@@ -36,7 +35,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
     """Downloads subreddit submissions, deletes older reposts/duplicate images, & stores data of each download in db
     .. todo:: Make logging log to its own seperate file"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, disable_db=False, disable_im=False, *args, **kwargs):
         # call constructor of GetSubredditSubmissions class passing args
         super().__init__(*args, **kwargs)
 
@@ -44,12 +43,16 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         self.Exceptions = (FileExistsException, FileExistsError,
                            ImgurException, HTTPError, ValueError)
 
-        self.es_index, self.es_doc_type = 'tpt_images', 'image'
-        # object used to add, search and compare images in elasticsearch for duplicate deletion
-        self.im = ImageMatchManager(index=self.es_index, doc_type=self.es_doc_type, distance_cutoff=0.40)
+        self.disable_im = disable_im
+        if not self.disable_im:
+            self.es_index, self.es_doc_type = 'tpt_images', 'image'
+            # object used to add, search and compare images in elasticsearch for duplicate deletion
+            self.im = ImageMatchManager(index=self.es_index, doc_type=self.es_doc_type, distance_cutoff=0.40)
 
-        # get db manager object for inserting and saving data to db
-        self.db = TPTDatabaseManager()
+        self.disable_db = disable_db
+        if not self.disable_db:
+            # get db manager object for inserting and saving data to db
+            self.db = TPTDatabaseManager()
 
         # used to check if url ends with any of these
         self.image_extensions = ('.png', '.jpg', '.jpeg', '.gif')
@@ -114,18 +117,15 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                         raise ValueError('Invalid submission URL: {}'.format(url))
 
                     # time.sleep(7)  # sometimes files get referenced before they're actually saved locally
-
                     creation_time = os.path.getctime(file_path)
-                    # update elasticsearch & check if image has been downloaded previously
-                    metadata = {'source_url': url, 'creation_time': creation_time}
-
-                    self.im.es_delete_all()  #### DEBUG
-                    # self.write_to_file(data=list(self.get_duplicates(file_path)))
-                    self.im.delete_duplicates(file_path, metadata)  # add img, locate & delete older duplicates
-
-                    # add some data to dict insert data into database
-                    submission['download_date'] = convert_to_readable_time(creation_time)
-                    self.db.insert(submission)
+                    if not self.disable_im:
+                        metadata = {'source_url': url, 'creation_time': creation_time}
+                        self.im.es_delete_all()  #### DEBUG
+                        self.im.delete_duplicates(file_path, metadata)  # add img, locate & delete older duplicates
+                    if not self.disable_db:
+                        # add some data to dict insert data into database
+                        submission['download_date'] = convert_to_readable_time(creation_time)
+                        self.db.insert(submission)
 
                 except self.Exceptions as e:
                     msg = '{}: {}'.format(type(e).__name__, e.args)
@@ -155,8 +155,11 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 continue_downloading = False
 
         # continue_downloading is false
-        self.db.close()
-        # self.im.close()
+        if not self.disable_db:
+            self.db.close()
+        if not self.disable_im:
+            self.im.close()
+
         print("{}{} errors occured".format(Fore.YELLOW, error_count))
         print("{}Downloaded from {} submissions from {}/{}{reset}".format(Fore.GREEN, download_count, self.subreddit,
                                                                           self.sort_type, reset=Style.RESET_ALL))

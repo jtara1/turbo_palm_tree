@@ -31,6 +31,9 @@ class GetSubredditSubmissions:
             (e.g.: 'topweek', 'controversialall')
         :param limit: number of submissions to get
         :param previous_id: reddit id (or fullname) to begin downloading after
+        :param disable_db: disables the use of database which is used to record data of each submission
+        :param disable_im: disable use of image-match & elasticsearch modules which are used to delete reposts/duplicate
+            images
         :param debug: enable debug prints and logging
         """
         self.log = logging.getLogger('GetSubredditSubmissions')

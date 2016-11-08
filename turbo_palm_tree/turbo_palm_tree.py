@@ -43,13 +43,13 @@ if __name__ == "__main__":
     log = logging.getLogger('tpt')
     log.info('cli args = %s' % args)
 
-    # start elasticsearch service if not already started
-    start_elasticsearch()
+    if not args.disable_image_match:
+        # start elasticsearch service if not already started
+        start_elasticsearch()
 
     # check if subreddit or local file for list of subreddits was passed
     list_file_extensions = ('.txt')
-    if os.path.isfile(args.subreddit) and (
-        args.subreddit.endswith(list_file_extensions)):
+    if os.path.isfile(args.subreddit) and args.subreddit.endswith(list_file_extensions):
         subreddit_list = parse_subreddit_list(args.subreddit, args.directory)
     else:
         subreddit_list = [(args.subreddit, args.directory)]
@@ -63,6 +63,7 @@ if __name__ == "__main__":
         download_submissions(
             subreddit=subreddit,
             path=path, sort_type=args.sort_type, limit=args.limit,
-            previous_id=args.prev_id, debug=args.debug)
+            previous_id=args.prev_id, disable_db=args.disable_database, disable_im=args.disable_image_match,
+            debug=args.debug)
 
     sys.exit(0)
