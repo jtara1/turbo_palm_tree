@@ -53,6 +53,8 @@ def is_image(image_path):
     """Returns true if (param) image_path is a file path that points to an image, false otherwise"""
     if os.path.isfile(image_path):
         media_info = MediaInfo.parse(image_path)
+        if (track.track_type.startswith('Video', 'Audio') for track in media_info.tracks):
+            return False
         if (track.track_type == 'Image' for track in media_info.tracks):
             return True
     return False
