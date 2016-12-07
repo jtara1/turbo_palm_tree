@@ -46,9 +46,6 @@ class ImageMatchManager(SignatureES):
             If there are no matched images (other than a match for the image just inserted) then `None` is returned in
             place of list of duplicate images
         :rtype: generator yielding tuple containing (string, list of dictionaries or None)
-
-        .. todo::
-            1. use git submodule that verifies file is an image
         """
         # if path points to a directory
         if os.path.isdir(path):
@@ -68,7 +65,6 @@ class ImageMatchManager(SignatureES):
         of each duplicate image
         """
         if not is_image(path):
-            print('-' * 100 + path + ' is not an image')
             return
         # print('GETTING DUP OF : {}'.format(path))
         self.add_image(path, metadata=metadata, refresh_after=True)
