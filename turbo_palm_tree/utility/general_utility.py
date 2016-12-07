@@ -2,9 +2,14 @@ import unicodedata
 import re
 import time
 import sys
+import os
 from praw import Reddit
 from elasticsearch import Elasticsearch, ElasticsearchException
 from subprocess import call
+from colorama import init as colorama_init
+from colorama import Fore, Style
+colorama_init()
+from pymediainfo import MediaInfo
 
 
 def slugify(value):
@@ -37,11 +42,20 @@ def start_elasticsearch():
     except ElasticsearchException:
         if sys.platform.startswith(('win32', 'cygwin')):
             raise NotImplementedError('Could not connect to elasticsearch service & there\'s no implementation for '
-                                      'windows OS to start the elasticsearch service')
+                                      'Windows OS to start the elasticsearch service')
         return_code = call(['sudo', 'service', 'elasticsearch', 'start'])
         while return_code is None:
-            print('waiting')
+            print(Fore.RED + 'waiting' + Style.RESET_ALL)
             time.sleep(0.5)
+
+
+def is_image(image_path):
+    """Returns true if (param) image_path is a file path that points to an image, false otherwise"""
+    if os.path.isfile(image_path):
+        media_info = MediaInfo.parse(image_path)
+        if (track.track_type == 'Image' for track in media_info.tracks):
+            return True
+    return False
 
 
 if __name__ == "__main__":

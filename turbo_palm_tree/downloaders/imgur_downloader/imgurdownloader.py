@@ -238,7 +238,10 @@ class ImgurDownloader:
             for fn in self.image_callbacks:
                 fn(counter, image_url, path)
 
-            dl, skp = self.direct_download(image_url, path)
+            try:
+                dl, skp = self.direct_download(image_url, path)
+            except (FileExistsError, HTTPError):
+                continue
             downloaded += dl
             skipped += skipped
             if dl != 0:

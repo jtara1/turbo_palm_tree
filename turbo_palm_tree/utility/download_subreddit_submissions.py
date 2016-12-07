@@ -120,8 +120,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     creation_time = os.path.getctime(file_path)
                     if not self.disable_im:
                         metadata = {'source_url': url, 'creation_time': creation_time}
-                        self.im.es_delete_all()  #### DEBUG
-                        self.im.delete_duplicates(file_path, metadata)  # add img, locate & delete older duplicates
+                        # add img, locate & delete older duplicates
+                        self.im.delete_duplicates(file_path, metadata=metadata)
                     if not self.disable_db:
                         # add some data to dict insert data into database
                         submission['download_date'] = convert_to_readable_time(creation_time)
@@ -157,8 +157,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         # continue_downloading is false
         if not self.disable_db:
             self.db.close()
-        if not self.disable_im:
-            self.im.close()
+        # if not self.disable_im:
+        #     self.im.close()
 
         print("{}{} errors occured".format(Fore.YELLOW, error_count))
         print("{}Downloaded from {} submissions from {}/{}{reset}".format(Fore.GREEN, download_count, self.subreddit,
