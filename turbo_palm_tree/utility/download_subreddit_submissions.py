@@ -108,6 +108,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
 
                     elif 'gfycat.com' in url:
                         gfycat_id = url.split('/')[-1]
+                        file_path += '.mp4'
                         Gfycat().more(gfycat_id).download(file_path)
 
                     elif 'deviantart.com' in url:
