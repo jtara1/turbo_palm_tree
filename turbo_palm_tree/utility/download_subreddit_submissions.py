@@ -15,7 +15,7 @@ from colorama import Fore, Style
 colorama_init()
 
 # database
-from database_manager.tpt_database import TPTDatabaseManager
+from turbo_palm_tree.database_manager.tpt_database import TPTDatabaseManager
 from .image_match_manager import ImageMatchManager
 
 # Exceptions
@@ -25,10 +25,10 @@ from downloaders.imgur_downloader.imgurdownloader import (
 from urllib.error import HTTPError
 
 # downloaders
-from downloaders.direct_link_download import direct_link_download
-from downloaders.imgur_downloader.imgurdownloader import ImgurDownloader
-from downloaders.gfycat.gfycat.gfycat import Gfycat
-from downloaders.deviantart import download_deviantart_url
+from turbo_palm_tree.downloaders.direct_link_download import direct_link_download
+from turbo_palm_tree.downloaders.imgur_downloader.imgurdownloader import ImgurDownloader
+from turbo_palm_tree.downloaders.gfycat.gfycat.gfycat import Gfycat
+from turbo_palm_tree.downloaders.deviantart import download_deviantart_url
 
 
 class DownloadSubredditSubmissions(GetSubredditSubmissions):

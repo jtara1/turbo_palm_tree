@@ -9,11 +9,11 @@ import sys
 import logging
 import pprint
 
-from utility.parse_arguments import parse_arguments
-from utility.get_subreddit_submissions import GetSubredditSubmissions
-from utility.download_subreddit_submissions import DownloadSubredditSubmissions
-from utility.parse_subreddit_list import parse_subreddit_list
-from utility.general_utility import start_elasticsearch
+from turbo_palm_tree.utility.parse_arguments import parse_arguments
+from turbo_palm_tree.utility.get_subreddit_submissions import GetSubredditSubmissions
+from turbo_palm_tree.utility.download_subreddit_submissions import DownloadSubredditSubmissions
+from turbo_palm_tree.utility.parse_subreddit_list import parse_subreddit_list
+from turbo_palm_tree.utility.general_utility import start_elasticsearch
 
 
 def get_submissions(*args, **kwargs):
@@ -30,7 +30,7 @@ def download_submissions(*args, **kwargs):
     downloader.download()
 
 
-if __name__ == "__main__":
+def main():
     # pass raw command line args to parse_arguments function
     args = parse_arguments(['--help'] if len(sys.argv) == 1 else sys.argv[1:])
 
@@ -67,3 +67,7 @@ if __name__ == "__main__":
             debug=args.debug)
 
     sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()

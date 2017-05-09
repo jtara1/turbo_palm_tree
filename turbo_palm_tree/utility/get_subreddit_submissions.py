@@ -14,7 +14,7 @@ if __name__ == "__main__":
     sys.exit(0)
 
 from .parse_arguments import SubredditSortTypes
-from utility.general_utility import slugify, convert_to_readable_time
+from turbo_palm_tree.utility.general_utility import slugify, convert_to_readable_time
 
 
 class GetSubredditSubmissions:

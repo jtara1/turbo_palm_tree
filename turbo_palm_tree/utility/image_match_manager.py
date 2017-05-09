@@ -7,7 +7,7 @@ import time
 from elasticsearch import Elasticsearch, NotFoundError, ConnectionError
 from image_match.elasticsearch_driver import SignatureES
 
-from utility.general_utility import is_image
+from .general_utility import is_image
 
 
 class ImageMatchManager(SignatureES):
