@@ -31,7 +31,7 @@ def convert_to_readable_time(time_epoch):
 
 def get_subreddit_name(subreddit):
     """Get exact (case-matching) subreddit name"""
-    return (Reddit('tpt').get_subreddit(subreddit)._get_json_dict()['display_name'])
+    return (Reddit('tpt by /u/jtara1').get_subreddit(subreddit)._get_json_dict()['display_name'])
 
 
 def start_elasticsearch():

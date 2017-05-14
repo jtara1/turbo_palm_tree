@@ -1,4 +1,4 @@
-praw
+praw==3.6.1
 bs4
 lxml
 elasticsearch==2.3.0
