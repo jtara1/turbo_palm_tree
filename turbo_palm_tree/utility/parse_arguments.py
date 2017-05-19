@@ -62,7 +62,7 @@ def parse_arguments(args):
                         action='store_false', default=False,
                         help='Disable use of database to record data of each submission downloaded')
     parser.add_argument('--disable-image-match', '--disable-im', '--no-im', required=False,
-                        action='store_false', default=False,
+                        action='store_true', default=True,
                         help='Disable use of elasticsearch and image-match modules which delete duplicate images')
     parser.add_argument('--debug', '-d', required=False, default=True,
                         action='store_true', help='Enable debug mode')

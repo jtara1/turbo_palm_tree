@@ -131,6 +131,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 except self.Exceptions as e:
                     msg = '{}: {}'.format(type(e).__name__, e.args)
                     self.log.warning(msg)
+                    print('url = {}'.format(url))
                     print(msg)
                     errors += 1
                 except KeyboardInterrupt:
