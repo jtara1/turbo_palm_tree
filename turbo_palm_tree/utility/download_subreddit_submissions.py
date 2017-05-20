@@ -16,7 +16,11 @@ colorama_init()
 
 # database
 from turbo_palm_tree.database_manager.tpt_database import TPTDatabaseManager
-from .image_match_manager import ImageMatchManager
+try:
+    from .image_match_manager import ImageMatchManager
+except ImportError:
+    # image-match is not installed
+    print("Note: image-match module is not installed.")
 
 # Exceptions
 from downloaders.imgur_downloader.imgurdownloader import (

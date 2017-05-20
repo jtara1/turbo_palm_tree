@@ -18,7 +18,7 @@ setup(name='tpt',
       description='Download image from subreddits',
       author='James T',
       author_email='jtara@tuta.io',
-      url='https://github.com/jtara1/tpt',
+      url='https://github.com/jtara1/turbo_palm_tree',
 
       install_requires=get_install_requirements(),
      )

@@ -4,12 +4,16 @@ import time
 import sys
 import os
 from praw import Reddit
-from elasticsearch import Elasticsearch, ElasticsearchException
 from subprocess import call
 from colorama import init as colorama_init
 from colorama import Fore, Style
 colorama_init()
 from pymediainfo import MediaInfo
+
+try:
+    from elasticsearch import Elasticsearch, ElasticsearchException
+except ImportError:
+    print("Note: elastic search module is not installed")
 
 
 def slugify(value):

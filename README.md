@@ -34,12 +34,13 @@ downloading after the submission the passed id points to
 
 #### Modules
 
-* praw
+* praw==3.6.1
 * bs4
 * lxml
-* elasticsearch==2.3.0
-* git+https://github.com/jtara1/image-match.git
+* ~elasticsearch==2.3.0~
+* ~git+https://github.com/jtara1/image-match.git~
 * colorama
+* pymediainfo
 
 
 ## Installation
