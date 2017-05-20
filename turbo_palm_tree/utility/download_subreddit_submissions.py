@@ -23,7 +23,7 @@ except ImportError:
     print("Note: image-match module is not installed.")
 
 # Exceptions
-from downloaders.imgur_downloader.imgurdownloader import (
+from turbo_palm_tree.downloaders.imgur_downloader.imgurdownloader import (
     FileExistsException,
     ImgurException)
 from urllib.error import HTTPError
