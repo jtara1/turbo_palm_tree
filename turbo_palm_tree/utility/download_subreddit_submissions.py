@@ -23,14 +23,14 @@ except ImportError:
     print("Note: image-match module is not installed.")
 
 # Exceptions
-from turbo_palm_tree.downloaders.imgur_downloader.imgurdownloader import (
+from turbo_palm_tree.downloaders.imgur_downloader.imgurdownloader.imgurdownloader import (
     FileExistsException,
     ImgurException)
 from urllib.error import HTTPError
 
 # downloaders
 from turbo_palm_tree.downloaders.direct_link_download import direct_link_download
-from turbo_palm_tree.downloaders.imgur_downloader.imgurdownloader import ImgurDownloader
+from turbo_palm_tree.downloaders.imgur_downloader.imgurdownloader.imgurdownloader import ImgurDownloader
 from turbo_palm_tree.downloaders.gfycat.gfycat.gfycat import Gfycat
 from turbo_palm_tree.downloaders.deviantart import download_deviantart_url
 
@@ -99,7 +99,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 # check domain and call corresponding downloader download functions or methods
                 try:
                     if url.endswith(self.media_extensions) or 'i.reddituploads.com' in url:
-                        direct_link_download(url, file_path)
+                        file_path = direct_link_download(url, file_path)
 
                     elif 'imgur.com' in url:
                         imgur = ImgurDownloader(imgur_url=url,
@@ -143,6 +143,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     self.log.info(msg)
                     print(msg)
                     continue_downloading = False
+                    break
 
             # update previous id downloaded
             self.set_previous_id(submission_id)

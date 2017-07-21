@@ -23,8 +23,13 @@ def direct_link_download(url, file_path):
     if not os.path.isdir(base_dir):
         os.makedirs(base_dir)
 
+    # get file extension from url
+    ext = url.split('.')[-1]
+    file_path += '.' + ext
+
     # download and save the image
     urlretrieve(url, file_path)
+    return file_path
 
 
 if __name__ == "__main__":
