@@ -6,3 +6,4 @@ lxml
 #git+https://github.com/jtara1/image-match.git
 colorama
 pymediainfo
+gooey==0.9.3

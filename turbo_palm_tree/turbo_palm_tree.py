@@ -8,6 +8,7 @@ import os
 import sys
 import logging
 import pprint
+from gooey import Gooey
 
 from turbo_palm_tree.utility.parse_arguments import parse_arguments
 from turbo_palm_tree.utility.get_subreddit_submissions import GetSubredditSubmissions
@@ -30,7 +31,29 @@ def download_submissions(*args, **kwargs):
     downloader.download()
 
 
+def gooey_enabler(main_func):
+    """
+    Runs and returns the main_func if GUI flag not found in cli args
+    else it returns the reference to the main_func thus continuing to
+    execute app with Gooey decorator
+    :param main_func: func for this decorator
+    """
+    # if we're not enabling the Gooey GUI, bypass the decorator by calling the main func
+    if not ('--gui' in sys.argv or '-g' in sys.argv):
+        return main_func()
+    else:
+        return main_func
+
+
+@Gooey
+@gooey_enabler
 def main():
+    """
+    With the decorators:
+    main = Gooey(gooey_enabler(main))
+    This is the main entry point to the app that setups logging, cli args, and begins the app
+    """
+
     # pass raw command line args to parse_arguments function
     args = parse_arguments(['--help'] if len(sys.argv) == 1 else sys.argv[1:])
 
