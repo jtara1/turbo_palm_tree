@@ -53,7 +53,6 @@ def main():
     main = Gooey(gooey_enabler(main))
     This is the main entry point to the app that setups logging, cli args, and begins the app
     """
-
     # pass raw command line args to parse_arguments function
     args = parse_arguments(['--help'] if len(sys.argv) == 1 else sys.argv[1:])
 
