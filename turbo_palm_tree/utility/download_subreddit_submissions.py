@@ -12,8 +12,6 @@ from .manage_subreddit_last_id import history_log, process_subreddit_last_id
 from colorama import init as colorama_init
 from colorama import Fore, Style
 
-colorama_init()
-
 # database
 from turbo_palm_tree.database_manager.tpt_database import TPTDatabaseManager
 try:
@@ -33,6 +31,9 @@ from turbo_palm_tree.downloaders.direct_link_download import direct_link_downloa
 from turbo_palm_tree.downloaders.imgur_downloader.imgurdownloader.imgurdownloader import ImgurDownloader
 from turbo_palm_tree.downloaders.gfycat.gfycat.gfycat import Gfycat
 from turbo_palm_tree.downloaders.deviantart import download_deviantart_url
+
+
+colorama_init()
 
 
 class DownloadSubredditSubmissions(GetSubredditSubmissions):
@@ -98,6 +99,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
 
                 # check domain and call corresponding downloader download functions or methods
                 try:
+                    print('downloading: {title}; {url}'.format(title=filename, url=url))
                     if url.endswith(self.media_extensions) or 'i.reddituploads.com' in url:
                         file_path = direct_link_download(url, file_path)
 
@@ -121,8 +123,12 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     else:
                         raise ValueError('Invalid submission URL: {}'.format(url))
 
-                    # time.sleep(7)  # sometimes files get referenced before they're actually saved locally
-                    creation_time = os.path.getctime(file_path)
+                    # get time if file is create, else just use the time now
+                    if os.path.exists(file_path):
+                        creation_time = os.path.getctime(file_path)
+                    else:
+                        creation_time = time.time()
+
                     if not self.disable_im:
                         metadata = {'source_url': url, 'creation_time': creation_time}
                         # add img, locate & delete older duplicates
