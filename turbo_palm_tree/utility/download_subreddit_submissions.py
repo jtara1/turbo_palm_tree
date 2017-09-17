@@ -21,14 +21,19 @@ except ImportError:
     print("Note: image-match module is not installed.")
 
 # Exceptions
-from turbo_palm_tree.downloaders.imgur_downloader.imgurdownloader.imgurdownloader import (
+from turbo_palm_tree\
+    .downloaders.imgur_downloader.imgurdownloader.imgurdownloader import (
     FileExistsException,
     ImgurException)
 from urllib.error import HTTPError
+from ssl import SSLError
 
 # downloaders
-from turbo_palm_tree.downloaders.direct_link_download import direct_link_download
-from turbo_palm_tree.downloaders.imgur_downloader.imgurdownloader.imgurdownloader import ImgurDownloader
+from turbo_palm_tree\
+    .downloaders.direct_link_download import direct_link_download
+from turbo_palm_tree\
+    .downloaders\
+    .imgur_downloader.imgurdownloader.imgurdownloader import ImgurDownloader
 from turbo_palm_tree.downloaders.gfycat.gfycat.gfycat import Gfycat
 from turbo_palm_tree.downloaders.deviantart import download_deviantart_url
 
@@ -37,8 +42,10 @@ colorama_init()
 
 
 class DownloadSubredditSubmissions(GetSubredditSubmissions):
-    """Downloads subreddit submissions, deletes older reposts/duplicate images, & stores data of each download in db
-    .. todo:: Make logging log to its own seperate file"""
+    """Downloads subreddit submissions, deletes older reposts/duplicate images, 
+    & stores data of each download in db
+    .. todo:: Make logging log to its own seperate file
+    """
 
     def __init__(self, disable_db=False, disable_im=False, *args, **kwargs):
         # call constructor of GetSubredditSubmissions class passing args
@@ -46,13 +53,17 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
 
         self.log = logging.getLogger('DownloadSubredditSubmissions')
         self.Exceptions = (FileExistsException, FileExistsError,
-                           ImgurException, HTTPError, ValueError)
+                           ImgurException, HTTPError, ValueError,
+                           SSLError)
 
         self.disable_im = disable_im
         if not self.disable_im:
             self.es_index, self.es_doc_type = 'tpt_images', 'image'
-            # object used to add, search and compare images in elasticsearch for duplicate deletion
-            self.im = ImageMatchManager(index=self.es_index, doc_type=self.es_doc_type, distance_cutoff=0.40)
+            # object used to add, search and compare images in elasticsearch
+            # for duplicate deletion
+            self.im = ImageMatchManager(index=self.es_index,
+                                        doc_type=self.es_doc_type,
+                                        distance_cutoff=0.40)
 
         self.disable_db = disable_db
         if not self.disable_db:
@@ -62,7 +73,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         # used to check if url ends with any of these
         self.image_extensions = ('.png', '.jpg', '.jpeg', '.gif')
         video_extensions = ('.webm', '.mp4')
-        self.media_extensions = tuple(chain(self.image_extensions, video_extensions))
+        self.media_extensions = tuple(chain(self.image_extensions,
+                                            video_extensions))
 
     def download(self):
         """Download media from submissions"""
@@ -93,24 +105,31 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 filename = slugify(title)
                 file_path = submission['file_path']
                 submission_id = submission['id']
-                final_filenames = []  # if an entire imgur album was downloaded, filenames will be stored here
 
-                self.log.info('Attempting to save {} as {}'.format(url, file_path))
+                # if an entire imgur album was downloaded,
+                # filenames will be stored here
+                final_filenames = []
 
-                # check domain and call corresponding downloader download functions or methods
+                self.log.info('Attempting to save {} as {}'
+                              .format(url, file_path))
+
+                # check domain and call corresponding downloader
+                # download functions or methods
                 try:
-                    print('downloading: {title}; {url}'.format(title=filename, url=url))
-                    if url.endswith(self.media_extensions) or 'i.reddituploads.com' in url:
-                        file_path = direct_link_download(url, file_path)
+                    print('downloading: {title}; {url}'
+                          .format(title=filename, url=url))
 
-                    elif 'imgur.com' in url:
+                    if 'imgur.com' in url:
                         imgur = ImgurDownloader(imgur_url=url,
-                                                dir_download=self.path, file_name=filename,
-                                                delete_dne=True, debug=False)
+                                                dir_download=self.path,
+                                                file_name=filename,
+                                                delete_dne=True,
+                                                debug=False)
                         final_filenames, skipped = imgur.save_images()
                         if len(final_filenames) == 1:
                             filename = final_filenames[0]
-                            file_path = os.path.join(os.path.dirname(file_path), filename)
+                            file_path = os.path.join(
+                                os.path.dirname(file_path), filename)
 
                     elif 'gfycat.com' in url:
                         gfycat_id = url.split('/')[-1]
@@ -120,8 +139,13 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     elif 'deviantart.com' in url:
                         download_deviantart_url(url, file_path)
 
+                    if url.endswith(self.media_extensions) or \
+                            'i.reddituploads.com' in url:
+                        file_path = direct_link_download(url, file_path)
+
                     else:
-                        raise ValueError('Invalid submission URL: {}'.format(url))
+                        raise ValueError('Invalid submission URL: {}'
+                                         .format(url))
 
                     # get time if file is create, else just use the time now
                     if os.path.exists(file_path):
@@ -130,12 +154,14 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                         creation_time = time.time()
 
                     if not self.disable_im:
-                        metadata = {'source_url': url, 'creation_time': creation_time}
+                        metadata = {'source_url': url,
+                                    'creation_time': creation_time}
                         # add img, locate & delete older duplicates
                         self.im.delete_duplicates(file_path, metadata=metadata)
                     if not self.disable_db:
                         # add some data to dict insert data into database
-                        submission['download_date'] = convert_to_readable_time(creation_time)
+                        submission['download_date'] = convert_to_readable_time(
+                            creation_time)
                         self.db.insert(submission)
 
                 except self.Exceptions as e:
@@ -163,7 +189,9 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
             if download_count < limit:
                 self.set_limit(limit - download_count)
             elif download_count >= limit or not continue_downloading:
-                log_data[self.subreddit][self.sort_type]['last-id'] = submission_id
+                log_data[self.subreddit][self.sort_type]['last-id'] = \
+                    submission_id
+
                 history_log(self.path, log_filename, 'write', log_data)
                 continue_downloading = False
 
@@ -174,10 +202,13 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         #     self.im.close()
 
         print("{}{} errors occured".format(Fore.YELLOW, error_count))
-        print("{}Downloaded from {} submissions from {}/{}{reset}".format(Fore.GREEN, download_count, self.subreddit,
-                                                                          self.sort_type, reset=Style.RESET_ALL))
+        print("{}Downloaded from {} submissions from {}/{}{reset}"
+              .format(Fore.GREEN, download_count, self.subreddit,
+                      self.sort_type, reset=Style.RESET_ALL))
 
-    def write_to_file(self, path=os.path.join(os.getcwd(), str(int(time.time()))), data=None):
+    def write_to_file(self,
+                      path=os.path.join(os.getcwd(), str(int(time.time()))),
+                      data=None):
         """
         :param path: path (including filename) of file that's to be written to
         :param data: data that gets written in file
