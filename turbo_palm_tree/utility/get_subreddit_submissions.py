@@ -3,18 +3,9 @@ import os
 import praw
 import logging
 
-if __name__ == "__main__":
-    from parse_arguments import SubredditSortTypes
-
-    dir = os.getcwd()
-    getter = GetSubredditSubmissions('pics', dir, 'hot', 5)
-    getter2 = GetSubredditSubmissions('pics', dir, 'topall', 5)
-    getter.get_submissions()
-    getter2.get_submissions()
-    sys.exit(0)
-
 from .parse_arguments import SubredditSortTypes
-from turbo_palm_tree.utility.general_utility import slugify, convert_to_readable_time
+from turbo_palm_tree.turbo_palm_tree.utility.general_utility import \
+    slugify, convert_to_readable_time
 
 
 class GetSubredditSubmissions:
@@ -31,9 +22,10 @@ class GetSubredditSubmissions:
             (e.g.: 'topweek', 'controversialall')
         :param limit: number of submissions to get
         :param previous_id: reddit id (or fullname) to begin downloading after
-        :param disable_db: disables the use of database which is used to record data of each submission
-        :param disable_im: disable use of image-match & elasticsearch modules which are used to delete reposts/duplicate
-            images
+        :param disable_db: disables the use of database which is used to record
+            data of each submission
+        :param disable_im: disable use of image-match & elasticsearch modules
+            which are used to delete reposts/duplicate images
         :param debug: enable debug prints and logging
         """
         self.log = logging.getLogger('GetSubredditSubmissions')
@@ -104,3 +96,13 @@ class GetSubredditSubmissions:
         if prev_id[:3] != fullname_tag:
             prev_id = '{tag}{id}'.format(tag=fullname_tag, id=prev_id)
         self.previous_id = prev_id
+
+
+if __name__ == "__main__":
+    from parse_arguments import SubredditSortTypes
+    dir = os.getcwd()
+    getter = GetSubredditSubmissions('pics', dir, 'hot', 5)
+    getter2 = GetSubredditSubmissions('pics', dir, 'topall', 5)
+    getter.get_submissions()
+    getter2.get_submissions()
+    sys.exit(0)

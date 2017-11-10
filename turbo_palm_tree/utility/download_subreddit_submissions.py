@@ -13,7 +13,8 @@ from colorama import init as colorama_init
 from colorama import Fore, Style
 
 # database
-from turbo_palm_tree.database_manager.tpt_database import TPTDatabaseManager
+from turbo_palm_tree.turbo_palm_tree.database_manager.tpt_database \
+    import TPTDatabaseManager
 try:
     from .image_match_manager import ImageMatchManager
 except ImportError:
@@ -21,33 +22,49 @@ except ImportError:
     print("Note: image-match module is not installed.")
 
 # Exceptions
-from turbo_palm_tree\
-    .downloaders.imgur_downloader.imgurdownloader.imgurdownloader import (
-    FileExistsException,
-    ImgurException)
+from turbo_palm_tree.turbo_palm_tree \
+    .downloaders.imgur_downloader.imgurdownloader.imgurdownloader\
+    import (FileExistsException,
+            ImgurException)
 from urllib.error import HTTPError
 from ssl import SSLError
 
 # downloaders
-from turbo_palm_tree\
+from turbo_palm_tree.turbo_palm_tree\
     .downloaders.direct_link_download import direct_link_download
-from turbo_palm_tree\
+from turbo_palm_tree.turbo_palm_tree\
     .downloaders\
-    .imgur_downloader.imgurdownloader.imgurdownloader import ImgurDownloader
-from turbo_palm_tree.downloaders.gfycat.gfycat.gfycat import Gfycat
-from turbo_palm_tree.downloaders.deviantart import download_deviantart_url
+    .imgur_downloader.imgurdownloader.imgurdownloader \
+    import ImgurDownloader
+from turbo_palm_tree.turbo_palm_tree.downloaders.gfycat.gfycat.gfycat \
+    import Gfycat
+from turbo_palm_tree.turbo_palm_tree.downloaders.deviantart \
+    import download_deviantart_url
 
 
 colorama_init()
 
 
 class DownloadSubredditSubmissions(GetSubredditSubmissions):
-    """Downloads subreddit submissions, deletes older reposts/duplicate images, 
-    & stores data of each download in db
-    .. todo:: Make logging log to its own seperate file
-    """
-
     def __init__(self, disable_db=False, disable_im=False, *args, **kwargs):
+        """Downloads subreddit submissions, deletes older reposts/duplicate
+        images, & stores data of each download in db.
+        Args are passed on to parent class - might not be updated
+
+        :param subreddit: name of subreddit
+        :param path: directory to save images to
+        :param sort_type: 'hot', 'top', 'new', or 'controversial' as base
+            `sort_type` in addition 'top' and 'controversial' can have an
+            advanced sort option such to sort by time frame
+            (e.g.: 'topweek', 'controversialall')
+        :param limit: number of submissions to get
+        :param previous_id: reddit id (or fullname) to begin downloading after
+        :param disable_db: disables the use of database which is used to record
+            data of each submission
+        :param disable_im: disable use of image-match & elasticsearch modules
+            which are used to delete reposts/duplicate images
+        :param debug: enable debug prints and logging
+        """
         # call constructor of GetSubredditSubmissions class passing args
         super().__init__(*args, **kwargs)
 
