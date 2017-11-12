@@ -1,1 +1,0 @@
-from turbo_palm_tree.turbo_palm_tree import turbo_palm_tree

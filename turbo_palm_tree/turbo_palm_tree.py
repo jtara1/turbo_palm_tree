@@ -43,7 +43,8 @@ def gooey_enabler(main_func):
     execute app with Gooey decorator
     :param main_func: func for this decorator
     """
-    # if we're not enabling the Gooey GUI, bypass the decorator by calling the main func
+    # if we're not enabling the Gooey GUI, bypass the decorator by calling the
+    # main func
     if not ('--gui' in sys.argv or '-g' in sys.argv):
         return main_func()
     else:
