@@ -139,7 +139,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     elif 'deviantart.com' in url:
                         download_deviantart_url(url, file_path)
 
-                    if url.endswith(self.media_extensions) or \
+                    elif url.endswith(self.media_extensions) or \
                             'i.reddituploads.com' in url:
                         file_path = direct_link_download(url, file_path)
 
