@@ -67,15 +67,6 @@ class TPTDatabaseManager:
 
 if __name__ == "__main__":
     db = TPTDatabaseManager()
-        # 'url': 'myurl.com',
-        # 'fullname': 't3_sdlakj',
-        # 'id': 'asdkljf',
-        # 'title': 'wow an image!',
-        # 'score': 9001,
-        # 'author': 'jman',
-        # 'selftext': '',
-        # 'submit_date': 98472947,
-        # 'comments_url': reddit.com/r/dlfj/ldskfj/comments/,
     my_data = {
         'subreddit': 'pics',
         'title': 'This also Japan',

@@ -1,6 +1,7 @@
 from distutils.core import setup
 import sys
 
+
 def get_install_requirements():
     requirements = []
     with open('requirements.txt', 'r') as f:
@@ -19,6 +20,5 @@ setup(name='tpt',
       author='James T',
       author_email='jtara@tuta.io',
       url='https://github.com/jtara1/turbo_palm_tree',
-
       install_requires=get_install_requirements(),
-     )
+      )

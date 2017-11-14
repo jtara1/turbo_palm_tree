@@ -1,9 +1,6 @@
-#setuptools # only needed if installing directly from a github link
 praw==3.6.1
 bs4
 lxml
-#elasticsearch==2.3.0
-#git+https://github.com/jtara1/image-match.git
 colorama
 pymediainfo
 gooey==0.9.3

@@ -58,17 +58,25 @@ def parse_arguments(args):
     parser.add_argument('--restart', '-r', required=False, action='store_false',
                         default=False,
                         help='Begin downloading from the beggining')
-    parser.add_argument('--gui', '-g', required=False, action='store_false', default=False,
-                        help='Enables use of Gooey module to provide a GUI for use of application')
-    parser.add_argument('--ignore-gooey', required=False, action='store_false', default=False,
-                        help='Use -g or --gui for GUI enabling instead (GUI disable by default). '
+    parser.add_argument('--gui', '-g', required=False, action='store_false',
+                        default=False,
+                        help='Enables use of Gooey module to provide a GUI '
+                             'for use of application')
+    parser.add_argument('--ignore-gooey', required=False, action='store_false',
+                        default=False,
+                        help='Use -g or --gui for GUI enabling instead '
+                             '(GUI disable by default). '
                              'This disables Gooey GUI wrapper for CLI.')
-    parser.add_argument('--disable-database', '--disable-db', '--no-db', required=False,
+    parser.add_argument('--disable-database', '--disable-db', '--no-db',
+                        required=False,
                         action='store_false', default=False,
-                        help='Disable use of database to record data of each submission downloaded')
-    parser.add_argument('--disable-image-match', '--disable-im', '--no-im', required=False,
+                        help='Disable use of database to record data of each '
+                             'submission downloaded')
+    parser.add_argument('--disable-image-match', '--disable-im', '--no-im',
+                        required=False,
                         action='store_true', default=True,
-                        help='Disable use of elasticsearch and image-match modules which delete duplicate images')
+                        help='Disable use of elasticsearch and image-match '
+                             'modules which delete duplicate images')
     parser.add_argument('--debug', '-d', required=False, default=True,
                         action='store_true', help='Enable debug mode')
 
@@ -82,8 +90,9 @@ def parse_arguments(args):
     # if subreddit name passed
     subreddit_list_extensions = ('.txt')
     if not (parsed_arguments.subreddit.endswith(subreddit_list_extensions) and (
-        os.path.isfile(parsed_arguments.subreddit))):
-        parsed_arguments.subreddit=get_subreddit_name(parsed_arguments.subreddit)
+            os.path.isfile(parsed_arguments.subreddit))):
+        parsed_arguments.subreddit = \
+            get_subreddit_name(parsed_arguments.subreddit)
         # set default directory if none given
         if not parsed_arguments.directory:
             parsed_arguments.directory = os.path.join(
