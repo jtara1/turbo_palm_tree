@@ -1,12 +1,13 @@
 from distutils.core import setup
 import sys
+import re
 
 
 def get_install_requirements():
     requirements = []
     with open('requirements.txt', 'r') as f:
         for line in f:
-            requirements.append(line)
+            requirements.append(re.sub("\s", "", line))
     print(requirements)
     return requirements
 
