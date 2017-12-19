@@ -3,4 +3,3 @@ bs4
 lxml
 colorama
 pymediainfo
-gooey==0.9.3

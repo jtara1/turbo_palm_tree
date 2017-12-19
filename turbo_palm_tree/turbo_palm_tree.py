@@ -1,14 +1,13 @@
-# @Author: jtara1
-# @Date:   14-Oct-2016
-# @Email:  jtara@tuta.io
-
-"""Initializes program"""
-
 import os
 import sys
 import logging
 import pprint
-from gooey import Gooey
+try:
+    from gooey import Gooey
+except ImportError:
+    def Gooey(func):
+        return func
+    print("Note: gooey is not installed")
 
 from turbo_palm_tree.utility.parse_arguments \
     import parse_arguments
@@ -20,10 +19,17 @@ from turbo_palm_tree.utility.parse_subreddit_list import parse_subreddit_list
 from turbo_palm_tree.utility.general_utility import start_elasticsearch
 
 
+__doc__ = """Initializes program
+Author:  jtara1
+Date:    2016-10-14
+Updated: 2017-12-18
+Email:   jtara@tuta.io"""
+
+
 def get_submissions(*args, **kwargs):
     getter = GetSubredditSubmissions(*args, **kwargs)
     submissions = getter.get_submissions_info()
-    ## pretty printer
+    # pretty printer
     pp = pprint.PrettyPrinter(indent=4)
     for s in submissions:
         pp.pprint(s)
