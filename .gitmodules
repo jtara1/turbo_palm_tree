@@ -1,9 +1,0 @@
-[submodule "downloaders/gfycat"]
-	path = downloaders/gfycat
-	url = https://github.com/jtara1/gfycat
-[submodule "turbo_palm_tree/downloaders/imgur_downloader"]
-	path = turbo_palm_tree/downloaders/imgur_downloader
-	url = https://github.com/jtara1/imgur_downloader.git
-[submodule "turbo_palm_tree/downloaders/gfycat"]
-	path = turbo_palm_tree/downloaders/gfycat
-	url = https://github.com/jtara1/gfycat.git

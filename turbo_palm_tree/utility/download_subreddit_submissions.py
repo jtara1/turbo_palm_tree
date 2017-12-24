@@ -21,8 +21,7 @@ except ImportError:
     print("Note: image-match module is not installed.")
 
 # Exceptions
-from turbo_palm_tree\
-    .downloaders.imgur_downloader.imgurdownloader.imgurdownloader import (
+from imgur_downloader.imgurdownloader import (
     FileExistsException,
     ImgurException)
 from urllib.error import HTTPError
@@ -31,10 +30,8 @@ from ssl import SSLError
 # downloaders
 from turbo_palm_tree\
     .downloaders.direct_link_download import direct_link_download
-from turbo_palm_tree\
-    .downloaders\
-    .imgur_downloader.imgurdownloader.imgurdownloader import ImgurDownloader
-from turbo_palm_tree.downloaders.gfycat.gfycat.gfycat import Gfycat
+from imgur_downloader import ImgurDownloader
+from gallery_dl.job import DownloadJob  # gfycat, but supports many
 from turbo_palm_tree.downloaders.deviantart import download_deviantart_url
 
 
@@ -132,9 +129,9 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                                 os.path.dirname(file_path), filename)
 
                     elif 'gfycat.com' in url:
-                        gfycat_id = url.split('/')[-1]
-                        file_path += '.mp4'
-                        Gfycat().more(gfycat_id).download(file_path)
+                        job = DownloadJob(url)
+                        job.run()
+                        file_path = os.path.abspath(job.pathfmt.path)
 
                     elif 'deviantart.com' in url:
                         download_deviantart_url(url, file_path)

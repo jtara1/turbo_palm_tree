@@ -2,4 +2,6 @@ praw==3.6.1
 bs4
 lxml
 colorama
-pymediainfo
+gallery-dl
+imgur-downloader
+click
