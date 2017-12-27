@@ -3,5 +3,5 @@ bs4
 lxml
 colorama
 gallery-dl
-imgur-downloader
+imgur-downloader>=0.1.6
 click

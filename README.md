@@ -37,49 +37,47 @@ downloading after the submission the passed id points to
 * praw==3.6.1
 * bs4
 * lxml
-* ~elasticsearch==2.3.0~
-* ~git+https://github.com/jtara1/image-match.git~
+* ~~elasticsearch==2.3.0~~
+* ~~git+https://github.com/jtara1/image-match.git~~
 * colorama
 * pymediainfo
 
 
 ## Installation
 
-Note, this repo has git submodules so be sure to use `--recursive`
-option with `git clone` to clone those in addition to this repo.
-
 Clone this repo somewhere, e.g.:
 
-    git clone --recursive https://github.com/jtara1/turbo_palm_tree
+    git clone https://github.com/jtara1/turbo_palm_tree
+    cd turbo_palm_tree
 
 Install Python 3 then the needed [modules](#Modules)
 
-    pip3 install -r requirements.txt
+    pip install -r requirements.txt
 
 
 ## Usage
 
-First, change directory to where `turbo_palm_tree.py` is located.
+First, change directory to where `run.py` is located.
 
 Run this to check CLI args and options
 
-    python3 turbo_palm_tree.py
+    python run.py
 
 Then run the same python file with desired options and args
 
 examples:
 
-    python3 turbo_palm_tree.py pics
+    python run.py pics
 
-    python3 turbo_plam_tree.py pics /home/james/Downloads/pics -l 5
+    python run.py pics /home/james/Downloads/pics -l 5
 
-    python3 turbo_palm_tree.py pics my_folder_for_pics --limit 5 --sort-type topall
+    python run.py pics my_folder_for_pics --limit 5 --sort-type topall
 
 
 
 #### Command Line Interface
 
-    usage: turbo_palm_tree.py [-h] [--sort-type s] [--limit l] [--prev-id id]
+    usage: run.py [-h] [--sort-type s] [--limit l] [--prev-id id]
                               [--restart] [--debug]
                               <subreddit> [<directory>]
 
@@ -105,10 +103,10 @@ examples:
 
 ## Credits
 
-* [nim901](https://github.com/nim901/gfycat) for the gfycat submodule
 * [rachmadaniHaryono](https://github.com/rachmadaniHaryono) for deviantart
 parsing submodule
 * praw and BeautifulSoup contributers
 * [jtara1](https://github.com/jtara1) for imgur_downloader and everything else
+* gallery-dl maintainers
 
 Inspired by [RedditImageGrab](https://github.com/jtara1/RedditImageGrab).

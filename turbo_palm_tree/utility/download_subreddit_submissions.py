@@ -41,7 +41,7 @@ colorama_init()
 class DownloadSubredditSubmissions(GetSubredditSubmissions):
     """Downloads subreddit submissions, deletes older reposts/duplicate images, 
     & stores data of each download in db
-    .. todo:: Make logging log to its own seperate file
+    .. todo:: Make logging log to its own separate file
     """
 
     def __init__(self, disable_db=False, disable_im=False, *args, **kwargs):
