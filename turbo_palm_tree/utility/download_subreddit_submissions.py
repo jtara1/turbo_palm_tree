@@ -1,3 +1,5 @@
+import shutil
+import glob
 import json
 import time
 import logging
@@ -7,7 +9,8 @@ from itertools import chain
 from .get_subreddit_submissions import GetSubredditSubmissions
 
 # utility
-from .general_utility import slugify, convert_to_readable_time
+from .general_utility \
+    import slugify, convert_to_readable_time, move_file, rename_file
 from .manage_subreddit_last_id import history_log, process_subreddit_last_id
 from colorama import init as colorama_init
 from colorama import Fore, Style
@@ -132,6 +135,9 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                         job = DownloadJob(url)
                         job.run()
                         file_path = os.path.abspath(job.pathfmt.path)
+                        file_path = rename_file(
+                            move_file(file_path, self.path),
+                            filename + '.mp4')
 
                     elif 'deviantart.com' in url:
                         download_deviantart_url(url, file_path)
@@ -175,7 +181,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     break
 
             # update previous id downloaded
-            self.set_previous_id(submission_id)
+            if 'submission_id' in locals().keys():
+                self.set_previous_id(submission_id)
 
             # update count of media successfully downloaded
             download_count += self.limit - errors - skips
@@ -185,7 +192,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
             # update attribute limit which is used when getting submissions
             if download_count < limit:
                 self.set_limit(limit - download_count)
-            elif download_count >= limit or not continue_downloading:
+            elif (download_count >= limit or not continue_downloading)\
+                    and 'submission_id' in locals().keys():
                 log_data[self.subreddit][self.sort_type]['last-id'] = \
                     submission_id
 
@@ -198,10 +206,19 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         # if not self.disable_im:
         #     self.im.close()
 
+        self._cleanup_files()
         print("{}{} errors occured".format(Fore.YELLOW, error_count))
         print("{}Downloaded from {} submissions from {}/{}{reset}"
               .format(Fore.GREEN, download_count, self.subreddit,
                       self.sort_type, reset=Style.RESET_ALL))
+
+    def _cleanup_files(self):
+        """Remove gallery-dl folder if it's there"""
+        for path in glob.glob(os.path.join(os.getcwd(), '*')):
+            print(path)
+            if os.path.basename(path) == 'gallery-dl' and os.path.isdir(path):
+                shutil.rmtree(path)
+                break
 
     def write_to_file(self,
                       path=os.path.join(os.getcwd(), str(int(time.time()))),

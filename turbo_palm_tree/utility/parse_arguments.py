@@ -48,7 +48,9 @@ def parse_arguments(args):
                         help='Directory to save images in; defaults to cwd \
                             joined with name of subreddit')
     parser.add_argument('--sort-type', '-s', metavar='<s>', required=False,
-                        default='hot', type=str, help='Sort type for subreddit')
+                        default='hot', type=str,
+                        help='Sort type for subreddit. See '
+                             'https://github.com/jtara1/turbo_palm_tree/search?utf8=%E2%9C%93&q=SubredditSortTypes')
     parser.add_argument('--limit', '--num', '-l', metavar='<l>', required=False,
                         default=5, type=int, help='Number of submissions to'
                         ' download from; defaults to 5')

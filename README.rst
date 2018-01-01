@@ -42,13 +42,10 @@ Requirements
 Modules
 ^^^^^^^
 
--  praw==3.6.1
--  bs4
--  lxml
+See requirements.txt
+
 -  [STRIKEOUT:elasticsearch==2.3.0]
 -  [STRIKEOUT:git+https://github.com/jtara1/image-match.git]
--  colorama
--  pymediainfo
 
 Installation
 ------------
@@ -94,9 +91,10 @@ Command Line Interface
 
 ::
 
-    usage: run.py [-h] [--sort-type s] [--limit l] [--prev-id id]
-                              [--restart] [--debug]
-                              <subreddit> [<directory>]
+    usage: run.py [-h] [--sort-type <s>] [--limit <l>] [--prev-id <id>]
+                  [--restart] [--gui] [--ignore-gooey] [--disable-database]
+                  [--disable-image-match] [--debug]
+                  <subreddit> [<directory>]
 
     Downloads image files from the specified subreddit or list of subreddits.
 
@@ -107,14 +105,26 @@ Command Line Interface
 
     optional arguments:
       -h, --help            show this help message and exit
-      --sort-type s, -s s   Sort type for subreddit
-      --limit l, --num l, -l l
+      --sort-type <s>, -s <s>
+                            Sort type for subreddit
+      --limit <l>, --num <l>, -l <l>
                             Number of submissions to download from; defaults to 5
-      --prev-id id, --last-id id
+      --prev-id <id>, --last-id <id>
                             Begin downloading from the submission after the given
                             reddit id
       --restart, -r         Begin downloading from the beggining
+      --gui, -g             Enables use of Gooey module to provide a GUI for use
+                            of application
+      --ignore-gooey        Use -g or --gui for GUI enabling instead (GUI disable
+                            by default). This disables Gooey GUI wrapper for CLI.
+      --disable-database, --disable-db, --no-db
+                            Disable use of database to record data of each
+                            submission downloaded
+      --disable-image-match, --disable-im, --no-im
+                            Disable use of elasticsearch and image-match modules
+                            which delete duplicate images
       --debug, -d           Enable debug mode
+
 
 Credits
 -------
