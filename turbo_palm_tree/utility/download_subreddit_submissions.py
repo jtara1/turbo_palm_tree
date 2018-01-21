@@ -58,6 +58,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
 
         self.disable_im = disable_im
         if not self.disable_im:
+            # elastic search variables
             self.es_index, self.es_doc_type = 'tpt_images', 'image'
             # object used to add, search and compare images in elasticsearch
             # for duplicate deletion
@@ -215,7 +216,6 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
     def _cleanup_files(self):
         """Remove gallery-dl folder if it's there"""
         for path in glob.glob(os.path.join(os.getcwd(), '*')):
-            print(path)
             if os.path.basename(path) == 'gallery-dl' and os.path.isdir(path):
                 shutil.rmtree(path)
                 break

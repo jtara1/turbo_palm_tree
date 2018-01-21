@@ -18,15 +18,38 @@ except ImportError:
 
 
 def slugify(value):
-    """Normalizes string, converts to lowercase, removes non-alpha characters,
-    and converts spaces to hyphens.
-    """
+    """Normalizes string, removes characters that are not:
+    alphanumeric, whitespace, or dash characters"""
     # taken from http://stackoverflow.com/a/295466
     # with some modification
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
     value = str(re.sub(r'[^\w\s-]', '', value.decode('ascii')).strip())
-    # value = re.sub(r'[-\s]+', '-', value) # not replacing space with hyphen
     return value
+
+
+def shorten_file_path(path, file_extension='', max_length=260):
+    """Shortens the file path if it has more than max_length chars. Assumes
+    there is no file extension that needs to be saved
+    :param path: path we can measuring and possibly changing
+    :param file_extension: the extension of the file the path points to if
+        there is any
+    :param max_length: max length (in characters) permitted by the OS for any
+        file path
+    """
+    path = os.path.abspath(path)
+    path_len = len(path)
+    if path_len > max_length:
+        directory = os.path.dirname(path)
+        max_base_name = max_length - len(directory) - len(file_extension)
+        if max_base_name <= 0:
+            raise Exception('File path is too long (> {} chars): {}'
+                            .format(max_length, path))
+
+        base_name = os.path.basename(path)
+        base_name_no_ext = base_name[:base_name.rfind(file_extension)]
+        path = os.path.join(directory,
+                            base_name_no_ext[:max_base_name] + file_extension)
+    return path
 
 
 def convert_to_readable_time(time_epoch):
@@ -104,3 +127,6 @@ if __name__ == "__main__":
     print(convert_to_readable_time(t))
     # note the case-matching name is BackgroundArt
     print(get_subreddit_name('backgroundart'))
+    print('-' * 60)
+    print(shorten_file_path('/home/j/file.jpg', '.jpg', 12))  # '/home/j/f.jpg'
+    print(shorten_file_path('/home/j/Documents', '', 12))  # '/home/j/Docum'
