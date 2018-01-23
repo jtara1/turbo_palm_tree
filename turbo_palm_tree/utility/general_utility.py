@@ -27,18 +27,19 @@ def slugify(value):
     return value
 
 
-def shorten_file_path(path, file_extension='', max_length=260):
-    """Shortens the file path if it has more than max_length chars. Assumes
-    there is no file extension that needs to be saved
-    e.g.: # asserts True
+def shorten_file_path_if_needed(path, file_extension='', max_length=260):
+    """Shortens the file path if it has more than max_length chars. If there's
+    a file extension in the file name of the path, then it should be explicitly
+    passed as an argument.
+    e.g.:
     shorten_file_path('/home/j/file.jpg', '.jpg', 12)) == '/home/j/f.jpg'
-    :param path: path we can measuring and possibly changing
-    :param file_extension: the extension of the file the path points to if
-        there is any
+
+    :param path: path we are measuring and possibly changing
+    :param file_extension: the extension of the file the path points to if \
+    there is any
     :param max_length: max length (in characters) permitted by the OS for any
-        file path
+    file path
     """
-    path = os.path.abspath(path)
     path_len = len(path)
     if path_len > max_length:
         directory = os.path.dirname(path)
@@ -48,7 +49,7 @@ def shorten_file_path(path, file_extension='', max_length=260):
                             .format(max_length, path))
 
         base_name = os.path.basename(path)
-        base_name_no_ext = base_name[:base_name.rfind(file_extension)]
+        base_name_no_ext = base_name[:base_name.rindex(file_extension)]
         path = os.path.join(directory,
                             base_name_no_ext[:max_base_name] + file_extension)
     return path
@@ -133,5 +134,5 @@ if __name__ == "__main__":
     # note the case-matching name is BackgroundArt
     print(get_subreddit_name('backgroundart'))
     print('-' * 60)
-    print(shorten_file_path('/home/j/file.jpg', '.jpg', 12))  # '/home/j/f.jpg'
-    print(shorten_file_path('/home/j/Documents', '', 12))  # '/home/j/Docum'
+    print(shorten_file_path_if_needed('/home/j/file.jpg', '.jpg', 12))  # '/home/j/f.jpg'
+    print(shorten_file_path_if_needed('/home/j/Documents', '', 12))  # '/home/j/Docum'

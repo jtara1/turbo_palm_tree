@@ -11,8 +11,8 @@ from .get_subreddit_submissions import GetSubredditSubmissions
 
 # utility
 from .general_utility \
-    import slugify, convert_to_readable_time, move_file, rename_file, \
-    get_file_extension
+    import slugify, convert_to_readable_time, move_file, \
+    get_file_extension, shorten_file_path_if_needed
 from .manage_subreddit_last_id import history_log, process_subreddit_last_id
 from colorama import init as colorama_init
 from colorama import Fore, Style
@@ -34,8 +34,6 @@ from urllib.error import HTTPError
 from ssl import SSLError
 
 # downloaders
-from turbo_palm_tree\
-    .downloaders.direct_link_download import direct_link_download
 from imgur_downloader import ImgurDownloader
 from gallery_dl.job import DownloadJob  # gfycat, but supports many
 from turbo_palm_tree.downloaders.deviantart import download_deviantart_url
@@ -49,6 +47,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
     & stores data of each download in db
     .. todo:: Make logging log to its own separate file
     """
+    OS_MAX_PATH_LENGTH = 260
 
     def __init__(self, disable_db=False, disable_im=False, *args, **kwargs):
         # call constructor of GetSubredditSubmissions class passing args
@@ -109,7 +108,10 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
             for submission in submissions:
                 url = submission['url']
                 title = submission['title']
-                filename = slugify(title)
+                # makes an assumption that len(file_extension) <= 5
+                filename = shorten_file_path_if_needed(
+                    slugify(title),
+                    max_length=self.OS_MAX_PATH_LENGTH - len(self.path) - 5)
                 file_path = submission['file_path']
                 submission_id = submission['id']
 
