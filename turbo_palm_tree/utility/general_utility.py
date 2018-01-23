@@ -30,6 +30,8 @@ def slugify(value):
 def shorten_file_path(path, file_extension='', max_length=260):
     """Shortens the file path if it has more than max_length chars. Assumes
     there is no file extension that needs to be saved
+    e.g.: # asserts True
+    shorten_file_path('/home/j/file.jpg', '.jpg', 12)) == '/home/j/f.jpg'
     :param path: path we can measuring and possibly changing
     :param file_extension: the extension of the file the path points to if
         there is any
@@ -50,6 +52,15 @@ def shorten_file_path(path, file_extension='', max_length=260):
         path = os.path.join(directory,
                             base_name_no_ext[:max_base_name] + file_extension)
     return path
+
+
+def get_file_extension(file_name):
+    """e.g.: "/home/j/path/my.video.mp4" -> ".mp4"
+    Throws an exception, ValueError, if there is no "." character in file_name
+    :param file_name: <str> any string or path that is the name of a file
+    :return: the file extension of the param, file_name
+    """
+    return file_name[file_name.rindex('.'):]
 
 
 def convert_to_readable_time(time_epoch):
@@ -96,27 +107,21 @@ def is_image(image_path):
     return False
 
 
-def move_file(source_path, destination_directory):
-    """Move file from source_path to destination_directory and delete the
-    origin file
-    """
-    if os.path.isfile(source_path) and os.path.isdir(destination_directory):
-        new_path = shutil.copy(source_path, destination_directory)
-        os.remove(source_path)
+def move_file(source_path, destination_path, delete_original=True):
+    """Move file from source_path to destination_path"""
+    if os.path.isfile(source_path):
+        new_path = shutil.copy(source_path, destination_path)
+        if delete_original:
+            os.remove(source_path)
         return new_path
 
 
 def rename_file(file_path, new_file_name):
     """e.g.:
-        rename_file('/home/j/file.txt', 'new_file.txt')
-    then we have '/home/j/new_file.txt'
+    rename_file('/home/j/file.txt', 'new_file.txt') == '/home/j/new_file.txt'
     """
     path = os.path.abspath(file_path)
-    if os.path.isfile(path) and isinstance(new_file_name, str):
-        new_path = os.path.join(os.path.dirname(path), new_file_name)
-        shutil.copy(path, new_path)
-        os.remove(path)
-        return new_path
+    return move_file(path, os.path.join(os.path.dirname(path), new_file_name))
 
 
 if __name__ == "__main__":

@@ -4,16 +4,19 @@ import json
 import time
 import logging
 import os
+from os.path import join
 from itertools import chain
 
 from .get_subreddit_submissions import GetSubredditSubmissions
 
 # utility
 from .general_utility \
-    import slugify, convert_to_readable_time, move_file, rename_file
+    import slugify, convert_to_readable_time, move_file, rename_file, \
+    get_file_extension
 from .manage_subreddit_last_id import history_log, process_subreddit_last_id
 from colorama import init as colorama_init
 from colorama import Fore, Style
+from gallery_dl import config as gallery_dl_config
 
 # database
 from turbo_palm_tree.database_manager.tpt_database import TPTDatabaseManager
@@ -77,6 +80,9 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         self.media_extensions = tuple(chain(self.image_extensions,
                                             video_extensions))
 
+        # prevent gallery-dl module from printing to std output
+        gallery_dl_config.set(("output", "mode"), "null")
+
     def download(self):
         """Download media from submissions"""
         continue_downloading = True
@@ -132,20 +138,19 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                             file_path = os.path.join(
                                 os.path.dirname(file_path), filename)
 
-                    elif 'gfycat.com' in url:
-                        job = DownloadJob(url)
-                        job.run()
-                        file_path = os.path.abspath(job.pathfmt.path)
-                        file_path = rename_file(
-                            move_file(file_path, self.path),
-                            filename + '.mp4')
-
                     elif 'deviantart.com' in url:
                         download_deviantart_url(url, file_path)
 
                     elif url.endswith(self.media_extensions) or \
-                            'i.reddituploads.com' in url:
-                        file_path = direct_link_download(url, file_path)
+                            'i.reddituploads.com' in url or \
+                            'gfycat.com' in url:
+                        job = DownloadJob(url)
+                        job.run()
+                        file_path = os.path.abspath(job.pathfmt.path)
+                        file_path = move_file(
+                            file_path,
+                            join(self.path,
+                                 filename + get_file_extension(file_path)))
 
                     else:
                         raise ValueError('Invalid submission URL: {}'
@@ -171,7 +176,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 except self.Exceptions as e:
                     msg = '{}: {}'.format(type(e).__name__, e.args)
                     self.log.warning(msg)
-                    print('url = {}'.format(url))
+                    # print('url = {}'.format(url))
                     print(msg)
                     errors += 1
                 except KeyboardInterrupt:
@@ -204,8 +209,6 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         # continue_downloading is false
         if not self.disable_db:
             self.db.close()
-        # if not self.disable_im:
-        #     self.im.close()
 
         self._cleanup_files()
         print("{}{} errors occured".format(Fore.YELLOW, error_count))
@@ -213,15 +216,16 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
               .format(Fore.GREEN, download_count, self.subreddit,
                       self.sort_type, reset=Style.RESET_ALL))
 
-    def _cleanup_files(self):
+    @staticmethod
+    def _cleanup_files():
         """Remove gallery-dl folder if it's there"""
         for path in glob.glob(os.path.join(os.getcwd(), '*')):
             if os.path.basename(path) == 'gallery-dl' and os.path.isdir(path):
                 shutil.rmtree(path)
                 break
 
-    def write_to_file(self,
-                      path=os.path.join(os.getcwd(), str(int(time.time()))),
+    @staticmethod
+    def write_to_file(path=os.path.join(os.getcwd(), str(int(time.time()))),
                       data=None):
         """
         :param path: path (including filename) of file that's to be written to

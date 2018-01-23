@@ -1,4 +1,4 @@
-from turbo_palm_tree.turbo_palm_tree import main
+from turbo_palm_tree.__main__ import main
 
 
 if __name__ == "__main__":
