@@ -115,6 +115,7 @@ def move_file(source_path, destination_path, delete_original=True):
         if delete_original:
             os.remove(source_path)
         return new_path
+    return source_path
 
 
 def rename_file(file_path, new_file_name):

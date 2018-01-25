@@ -158,8 +158,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                         raise ValueError('Invalid submission URL: {}'
                                          .format(url))
 
-                    # get time if file is create, else just use the time now
-                    if os.path.exists(file_path):
+                    # get time if file is created, else just use the time now
+                    if file_path and os.path.exists(file_path):
                         creation_time = os.path.getctime(file_path)
                     else:
                         creation_time = time.time()
