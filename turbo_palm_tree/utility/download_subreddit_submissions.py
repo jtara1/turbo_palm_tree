@@ -49,9 +49,10 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
     """
     OS_MAX_PATH_LENGTH = 260
 
-    def __init__(self, disable_db=False, disable_im=False, *args, **kwargs):
+    def __init__(self, subreddit, path, sort_type, limit, previous_id=None,
+                 debug=False, disable_db=False, disable_im=False):
         # call constructor of GetSubredditSubmissions class passing args
-        super().__init__(*args, **kwargs)
+        super().__init__(subreddit, path, sort_type, limit, previous_id, debug)
 
         self.log = logging.getLogger('DownloadSubredditSubmissions')
         self.Exceptions = (FileExistsException, FileExistsError,
@@ -145,7 +146,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
 
                     elif url.endswith(self.media_extensions) or \
                             'i.reddituploads.com' in url or \
-                            'gfycat.com' in url:
+                            'gfycat.com' in url or \
+                            'cdna.artstation.com' in url:
                         job = DownloadJob(url)
                         job.run()
                         file_path = os.path.abspath(job.pathfmt.path)

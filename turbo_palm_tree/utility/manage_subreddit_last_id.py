@@ -29,6 +29,10 @@ def history_log(wdir=os.getcwd(), log_file='log_file.txt', mode='read',
         'append': 'a'
     }
     if mode in mode_dict:
+        # create folder, if it doesn't exist
+        if not os.path.isdir(wdir):
+            os.mkdir(wdir)
+
         with open(os.path.join(wdir, log_file), mode_dict[mode]) as f:
             if mode == 'read':
                 return json.loads(f.read())
