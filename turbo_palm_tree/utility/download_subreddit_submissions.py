@@ -202,9 +202,9 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
             # update attribute limit which is used when getting submissions
             if download_count < limit:
                 self.set_limit(limit - download_count)
-            elif (download_count >= limit or not continue_downloading)\
-                    and 'submission_id' in locals().keys():
-                log_data[self.subreddit][self.sort_type]['last-id'] = \
+            elif download_count >= limit or not continue_downloading:
+                if 'submission_id' in locals().keys():
+                    log_data[self.subreddit][self.sort_type]['last-id'] = \
                     submission_id
 
                 history_log(self.path, log_filename, 'write', log_data)
