@@ -33,6 +33,7 @@ from imgur_downloader.imgurdownloader import (
 from urllib.error import HTTPError
 from ssl import SSLError
 from gallery_dl.exception import NoExtractorError
+from turbo_palm_tree.utility.exception import TurboPalmTreeException
 
 # downloaders
 from imgur_downloader import ImgurDownloader
@@ -58,7 +59,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         self.log = logging.getLogger('DownloadSubredditSubmissions')
         self.Exceptions = (FileExistsException, FileExistsError,
                            ImgurException, HTTPError, ValueError,
-                           SSLError, NoExtractorError)
+                           SSLError, NoExtractorError, TurboPalmTreeException)
 
         self.disable_im = disable_im
         if not self.disable_im:
@@ -127,9 +128,6 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 # check domain and call corresponding downloader
                 # download functions or methods
                 try:
-                    print('downloading: {title}; {url}'
-                          .format(title=filename, url=url))
-
                     if 'imgur.com' in url:
                         imgur = ImgurDownloader(imgur_url=url,
                                                 dir_download=self.path,
@@ -145,28 +143,21 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     elif 'deviantart.com' in url:
                         download_deviantart_url(url, file_path)
 
-                    # elif url.endswith(self.media_extensions) or \
-                    #         'i.reddituploads.com' in url or \
-                    #         'gfycat.com' in url or \
-                    #         'artstation.com' in url:
-                    #     job = DownloadJob(url)
-                    #     job.run()
-                    #     file_path = os.path.abspath(job.pathfmt.path)
-                    #     file_path = move_file(
-                    #         file_path,
-                    #         join(self.path,
-                    #              filename + get_file_extension(file_path)))
-
                     else:
                         job = DownloadJob(url)
                         job.run()
+                        # text submission on a subreddit
+                        if job.pathfmt is None:
+                            raise TurboPalmTreeException(
+                                'No path for gallery-dl DownloadJob')
                         file_path = os.path.abspath(job.pathfmt.path)
                         file_path = move_file(
                             file_path,
                             join(self.path,
                                  filename + get_file_extension(file_path)))
-                        # raise ValueError('Invalid submission URL: {}'
-                        #                  .format(url))
+
+                    print('downloaded: {title}; {url}'
+                          .format(title=filename, url=url))
 
                     # get time if file is created, else just use the time now
                     if file_path and os.path.exists(file_path):
