@@ -147,7 +147,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     elif url.endswith(self.media_extensions) or \
                             'i.reddituploads.com' in url or \
                             'gfycat.com' in url or \
-                            'cdna.artstation.com' in url:
+                            'artstation.com' in url:
                         job = DownloadJob(url)
                         job.run()
                         file_path = os.path.abspath(job.pathfmt.path)
