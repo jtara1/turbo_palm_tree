@@ -32,6 +32,7 @@ from imgur_downloader.imgurdownloader import (
     ImgurException)
 from urllib.error import HTTPError
 from ssl import SSLError
+from gallery_dl.exception import NoExtractorError
 
 # downloaders
 from imgur_downloader import ImgurDownloader
@@ -57,7 +58,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         self.log = logging.getLogger('DownloadSubredditSubmissions')
         self.Exceptions = (FileExistsException, FileExistsError,
                            ImgurException, HTTPError, ValueError,
-                           SSLError)
+                           SSLError, NoExtractorError)
 
         self.disable_im = disable_im
         if not self.disable_im:
@@ -144,10 +145,19 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     elif 'deviantart.com' in url:
                         download_deviantart_url(url, file_path)
 
-                    elif url.endswith(self.media_extensions) or \
-                            'i.reddituploads.com' in url or \
-                            'gfycat.com' in url or \
-                            'artstation.com' in url:
+                    # elif url.endswith(self.media_extensions) or \
+                    #         'i.reddituploads.com' in url or \
+                    #         'gfycat.com' in url or \
+                    #         'artstation.com' in url:
+                    #     job = DownloadJob(url)
+                    #     job.run()
+                    #     file_path = os.path.abspath(job.pathfmt.path)
+                    #     file_path = move_file(
+                    #         file_path,
+                    #         join(self.path,
+                    #              filename + get_file_extension(file_path)))
+
+                    else:
                         job = DownloadJob(url)
                         job.run()
                         file_path = os.path.abspath(job.pathfmt.path)
@@ -155,10 +165,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                             file_path,
                             join(self.path,
                                  filename + get_file_extension(file_path)))
-
-                    else:
-                        raise ValueError('Invalid submission URL: {}'
-                                         .format(url))
+                        # raise ValueError('Invalid submission URL: {}'
+                        #                  .format(url))
 
                     # get time if file is created, else just use the time now
                     if file_path and os.path.exists(file_path):
