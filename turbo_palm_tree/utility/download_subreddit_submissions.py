@@ -149,7 +149,8 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                         # text submission on a subreddit
                         if job.pathfmt is None:
                             raise TurboPalmTreeException(
-                                'No path for gallery-dl DownloadJob')
+                                'No path for gallery-dl DownloadJob\n'
+                                '\turl = {}'.format(url))
                         file_path = os.path.abspath(job.pathfmt.path)
                         file_path = move_file(
                             file_path,
@@ -179,8 +180,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 except self.Exceptions as e:
                     msg = '{}: {}'.format(type(e).__name__, e.args)
                     self.log.warning(msg)
-                    # print('url = {}'.format(url))
-                    print(msg)
+                    print(Fore.RED + msg + Style.RESET_ALL)
                     errors += 1
                 except KeyboardInterrupt:
                     msg = 'KeyboardInterrupt caught, exiting program'
