@@ -14,8 +14,8 @@ Features
 -  metadata recording of each submission in database (see file
    ``turbo_palm_tree/database_manager/tpt.db``)
 
-Optional Features
-'''''''''''''''''
+Optionally
+----------
 
 -  Specify directory to download to
 -  Start downloading from beginning with ``--restart`` or ``-r``
@@ -32,7 +32,7 @@ Image/Video scraping from
 -  deviantart
 -  gfycat
 -  reddituploads
--  [any url that ends with a media file extension]
+-  `gallery-dl supported sites <https://github.com/mikf/gallery-dl/blob/master/docs/supportedsites.rst>`__
 
 Requirements
 ------------
@@ -42,10 +42,7 @@ Requirements
 Modules
 ^^^^^^^
 
-See requirements.txt
-
--  [STRIKEOUT:elasticsearch==2.3.0]
--  [STRIKEOUT:git+https://github.com/jtara1/image-match.git]
+See ``requirements.txt``
 
 Installation
 ------------
@@ -63,8 +60,8 @@ Install Python 3 then the needed `modules <#Modules>`__
 
     pip install -r requirements.txt
 
-Usage
------
+Usage from command line
+-----------------------
 
 First, change directory to where ``run.py`` is located.
 
@@ -85,6 +82,30 @@ examples:
     python run.py pics /home/james/Downloads/pics -l 5
 
     python run.py pics my_folder_for_pics --limit 5 --sort-type topall
+
+If you install it via ``pip`` or ``python setup.py install`` then you can use ``tpt`` as the alias to run turbo_palm_tree
+
+::
+
+    tpt pics -l 5
+
+
+Usage as an API
+---------------
+Install via pip
+
+::
+
+    $ pip install git+https://github.com/jtara1/turbo_palm_tree
+
+    $ python
+
+    >>> from turbo_palm_tree import DownloadSubredditSubmissions as Tpt
+
+    >>> downloader = Tpt('pics', path='my_downloads/', sort_type='hot', limit=5)
+
+    >>> downloader.download()
+
 
 Command Line Interface
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -133,7 +154,6 @@ Credits
    deviantart parsing submodule
 -  praw and BeautifulSoup contributers
 -  `jtara1 <https://github.com/jtara1>`__ for imgur\_downloader and
-   everything else
 -  gallery-dl maintainers
 
 Inspired by

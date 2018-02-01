@@ -21,7 +21,7 @@ https://github.com/jtara1/misc_scripts/blob/master/misc_scripts/templates/setup.
 github_user = 'jtara1'
 author = 'James T'
 author_email = 'jtara@tuta.io'
-description = 'Downloads images from subreddits'
+description = 'Download media from subreddits'
 # ------------------------------------------------------------- #
 
 # path to this file but not including this file
@@ -82,6 +82,7 @@ def update_cfg_module_name():
         create_setup_cfg(update_cfg_module_name)
 # -------------------------------------------------------------- #
 
+
 # Store text from README.rst or README.md to use in long description and
 # update setup.cfg to point to the correct readme if needed
 try:
@@ -109,6 +110,10 @@ setup(use_scm_version={'root': directory},
       author_email=author_email,
       url=github_url,
       keywords=[],
+      # include this if you want this module to have a command line interface
+      entry_points={
+          'console_scripts':
+              ['tpt={}.__main__:main'.format(module_name)]},
       install_requires=get_install_requirements(),
       # list of strs https://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[]
