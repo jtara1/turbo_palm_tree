@@ -35,7 +35,7 @@ class GetSubredditSubmissions:
         self.limit = limit
         self.previous_id = '' if not previous_id else (
             self.set_previous_id(previous_id))
-        self.path = path
+        self.path = path  # root directory of where media is saved
 
         # deal with sort types that do and don't have time filter concatenated
         valid_sort_types = list(st.value for st in list(SubredditSortTypes))
@@ -82,6 +82,8 @@ class GetSubredditSubmissions:
                     'selftext': s.selftext,
                     'submit_date': convert_to_readable_time(s.created),
                     'comments_url': s.permalink,
+                    'dl_directory': os.path.join(self.path, slugify(s.title)),
+                    # deprecated. e.g.: '/home/j/tpt/pics'
                     'file_path': os.path.join(self.path, slugify(s.title))
                 } for s in submissions)
 
@@ -98,7 +100,7 @@ class GetSubredditSubmissions:
 
 
 if __name__ == "__main__":
-    from parse_arguments import SubredditSortTypes
+    from turbo_palm_tree.utility.parse_arguments import SubredditSortTypes
 
     dir = os.getcwd()
     getter = GetSubredditSubmissions('pics', dir, 'hot', 5)

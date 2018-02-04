@@ -7,6 +7,7 @@ from praw import Reddit
 from subprocess import call
 from colorama import init as colorama_init
 from colorama import Fore, Style
+from os.path import basename
 colorama_init()
 from pymediainfo import MediaInfo
 import shutil
@@ -23,7 +24,7 @@ def slugify(value):
     # taken from http://stackoverflow.com/a/295466
     # with some modification
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
-    value = str(re.sub(r'[^\w\s-]', '', value.decode('ascii')).strip())
+    value = str(re.sub(r'[^\w\s\-\.]', '', value.decode('ascii')).strip())
     return value
 
 
@@ -35,10 +36,11 @@ def shorten_file_path_if_needed(path, file_extension='', max_length=260):
     shorten_file_path('/home/j/file.jpg', '.jpg', 12)) == '/home/j/f.jpg'
 
     :param path: path we are measuring and possibly changing
-    :param file_extension: the extension of the file the path points to if \
-    there is any
-    :param max_length: max length (in characters) permitted by the OS for any
-    file path
+    :param file_extension: the extension of the file the path points to if \n
+        there is any
+    :param max_length: max length (in characters) permitted by the OS for any\n
+        file path
+    :returns: <tuple> shortened path and the basename of path
     """
     path_len = len(path)
     if path_len > max_length:
@@ -48,20 +50,33 @@ def shorten_file_path_if_needed(path, file_extension='', max_length=260):
             raise Exception('File path is too long (> {} chars): {}'
                             .format(max_length, path))
 
-        base_name = os.path.basename(path)
+        base_name = basename(path)
         base_name_no_ext = base_name[:base_name.rindex(file_extension)]
         path = os.path.join(directory,
                             base_name_no_ext[:max_base_name] + file_extension)
-    return path
+    return path, basename(path)
 
 
 def get_file_extension(file_name):
     """e.g.: "/home/j/path/my.video.mp4" -> ".mp4"
     Throws an exception, ValueError, if there is no "." character in file_name
     :param file_name: <str> any string or path that is the name of a file
-    :return: the file extension of the param, file_name
+    :return: the file extension of the param
     """
     return file_name[file_name.rindex('.'):]
+
+
+def remove_file_extension(file_name):
+    """e.g.: remove_file_extension("hi.jpg") == "hi"
+    It does not mutate file_name (str is immutable anyway)
+    :param file_name: <str>
+    :return: it returns the file_name without the extension
+    """
+    return file_name[:file_name.rindex('.')]
+
+
+def split_file_name_by_extension(file_name):
+    return remove_file_extension(file_name), get_file_extension(file_name)
 
 
 def convert_to_readable_time(time_epoch):

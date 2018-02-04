@@ -2,6 +2,7 @@ import shutil
 import random
 import sys
 import os
+from os.path import basename
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from glob import glob
@@ -9,6 +10,8 @@ from turbo_palm_tree.utility.parse_arguments \
     import parse_arguments, SubredditSortTypes
 from turbo_palm_tree.utility.download_subreddit_submissions \
     import DownloadSubredditSubmissions
+from turbo_palm_tree.utility.general_utility \
+    import remove_file_extension, slugify
 import time
 
 
@@ -57,6 +60,14 @@ class TestClass:
         downloader.download()
         valid_names = [
             '4 beans in 1 album', '._history.txt', '.directory',
-            'helmets save lives.jpg', 'rImaginaryCharacters link.jpg']
+            'helmets save lives.jpg', 'rImaginaryCharacters link.jpg',
+        ]
         for file in glob(os.path.join(self.directory, '*')):
-            assert(os.path.basename(file) in valid_names)
+            if basename(file).startswith('Lorem'):
+                base_name_no_ext = remove_file_extension(basename(file))
+                print(base_name_no_ext)
+                lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                assert(base_name_no_ext in slugify(lorem))
+            else:
+                assert(basename(file) in valid_names)
+

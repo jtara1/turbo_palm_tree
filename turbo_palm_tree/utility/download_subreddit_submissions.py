@@ -112,10 +112,10 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 url = submission['url']
                 title = submission['title']
                 # makes an assumption that len(file_extension) <= 5
-                filename = shorten_file_path_if_needed(
+                _, filename = shorten_file_path_if_needed(
                     slugify(title),
                     max_length=self.OS_MAX_PATH_LENGTH - len(self.path) - 5)
-                file_path = submission['file_path']
+                dl_directory = submission['dl_directory']
                 submission_id = submission['id']
 
                 # if an entire imgur album was downloaded,
@@ -123,7 +123,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                 final_filenames = []
 
                 self.log.info('Attempting to save {} as {}'
-                              .format(url, file_path))
+                              .format(url, dl_directory))
 
                 # check domain and call corresponding downloader
                 # download functions or methods
@@ -137,11 +137,11 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                         final_filenames, skipped = imgur.save_images()
                         if len(final_filenames) == 1:
                             filename = final_filenames[0]
-                            file_path = os.path.join(
-                                os.path.dirname(file_path), filename)
+                            dl_directory = os.path.join(
+                                os.path.dirname(dl_directory), filename)
 
                     elif 'deviantart.com' in url:
-                        download_deviantart_url(url, file_path)
+                        download_deviantart_url(url, dl_directory)
 
                     else:
                         job = DownloadJob(url)
@@ -151,18 +151,18 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                             raise TurboPalmTreeException(
                                 'No path for gallery-dl DownloadJob\n'
                                 '\turl = {}'.format(url))
-                        file_path = os.path.abspath(job.pathfmt.path)
-                        file_path = move_file(
-                            file_path,
+                        dl_directory = os.path.abspath(job.pathfmt.path)
+                        dl_directory = move_file(
+                            dl_directory,
                             join(self.path,
-                                 filename + get_file_extension(file_path)))
+                                 filename + get_file_extension(dl_directory)))
 
                     print('downloaded: {title}; {url}'
                           .format(title=filename, url=url))
 
                     # get time if file is created, else just use the time now
-                    if file_path and os.path.exists(file_path):
-                        creation_time = os.path.getctime(file_path)
+                    if dl_directory and os.path.exists(dl_directory):
+                        creation_time = os.path.getctime(dl_directory)
                     else:
                         creation_time = time.time()
 
@@ -170,7 +170,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                         metadata = {'source_url': url,
                                     'creation_time': creation_time}
                         # add img, locate & delete older duplicates
-                        self.im.delete_duplicates(file_path, metadata=metadata)
+                        self.im.delete_duplicates(dl_directory, metadata=metadata)
                     if not self.disable_db:
                         # add some data to dict insert data into database
                         submission['download_date'] = convert_to_readable_time(
