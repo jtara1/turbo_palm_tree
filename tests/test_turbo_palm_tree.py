@@ -63,11 +63,15 @@ class TestClass:
             'helmets save lives.jpg', 'rImaginaryCharacters link.jpg',
         ]
         for file in glob(os.path.join(self.directory, '*')):
-            if basename(file).startswith('Lorem'):
-                base_name_no_ext = remove_file_extension(basename(file))
+            file_name = basename(file)
+            print(file_name)
+            if file_name.startswith('Lorem'):
+                base_name_no_ext = remove_file_extension(file_name)
                 print(base_name_no_ext)
                 lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
                 assert(base_name_no_ext in slugify(lorem))
+            elif file_name.startswith('2018'):
+                pass
             else:
-                assert(basename(file) in valid_names)
+                assert(file_name in valid_names)
 

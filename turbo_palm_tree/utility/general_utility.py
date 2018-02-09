@@ -11,6 +11,7 @@ from os.path import basename
 colorama_init()
 from pymediainfo import MediaInfo
 import shutil
+from datetime import datetime
 
 try:
     from elasticsearch import Elasticsearch, ElasticsearchException
@@ -87,7 +88,7 @@ def convert_to_readable_time(time_epoch):
 def get_subreddit_name(subreddit):
     """Get exact (case-matching) subreddit name"""
     return (Reddit('tpt by /u/jtara1').get_subreddit(subreddit)
-        ._get_json_dict()['display_name'])
+            ._get_json_dict()['display_name'])
 
 
 def start_elasticsearch():
@@ -141,6 +142,13 @@ def rename_file(file_path, new_file_name):
     return move_file(path, os.path.join(os.path.dirname(path), new_file_name))
 
 
+def get_datetime_now():
+    """
+    :return: valid filename (no extension) named after the ISO \n
+        datetime
+    """
+    return str(datetime.now()).replace('.', ' ').replace(':', ' ')
+
 if __name__ == "__main__":
     t = time.time()
     print(time.localtime())
@@ -152,3 +160,5 @@ if __name__ == "__main__":
     print('-' * 60)
     print(shorten_file_path_if_needed('/home/j/file.jpg', '.jpg', 12))  # '/home/j/f.jpg'
     print(shorten_file_path_if_needed('/home/j/Documents', '', 12))  # '/home/j/Docum'
+    print('-' * 60)
+    print(get_datetime_now())

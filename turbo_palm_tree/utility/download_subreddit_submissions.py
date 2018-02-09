@@ -12,7 +12,7 @@ from .get_subreddit_submissions import GetSubredditSubmissions
 # utility
 from .general_utility \
     import slugify, convert_to_readable_time, move_file, \
-    get_file_extension, shorten_file_path_if_needed
+    get_file_extension, shorten_file_path_if_needed, get_datetime_now
 from .manage_subreddit_last_id import history_log, process_subreddit_last_id
 from colorama import init as colorama_init
 from colorama import Fore, Style
@@ -117,6 +117,13 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                     max_length=self.OS_MAX_PATH_LENGTH - len(self.path) - 5)
                 dl_directory = submission['dl_directory']
                 submission_id = submission['id']
+
+                # filename is '' or None, filename = datetime.now()
+                if not filename:
+                    _, filename = shorten_file_path_if_needed(
+                        get_datetime_now(),
+                        max_length=
+                        self.OS_MAX_PATH_LENGTH - len(self.path) - 5)
 
                 # if an entire imgur album was downloaded,
                 # filenames will be stored here
