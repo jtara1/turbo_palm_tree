@@ -64,11 +64,6 @@ def parse_arguments(args):
                         default=False,
                         help='Enables use of Gooey module to provide a GUI '
                              'for use of application')
-    parser.add_argument('--ignore-gooey', required=False, action='store_false',
-                        default=False,
-                        help='Use -g or --gui for GUI enabling instead '
-                             '(GUI disable by default). '
-                             'This disables Gooey GUI wrapper for CLI.')
     parser.add_argument('--disable-database', '--disable-db', '--no-db',
                         required=False,
                         action='store_false', default=False,
