@@ -44,14 +44,16 @@ class TPTDatabaseManager:
                 :score, :author, :submit_date, :download_date);""",
             data)
 
-    def print_all(self):
+    def __str__(self):
         """select all, fetch all, print all
         .. note:: This only prints what has been saved (committed) in the db.
         """
         self.cursor.execute("SELECT * FROM reddit_downloads")
+        output = ""
         rows = self.cursor.fetchall()
         for row in rows:
-            print(row)
+            output += row + '\n'
+        return output
 
     def save(self):
         """Save (commit) changed to db"""

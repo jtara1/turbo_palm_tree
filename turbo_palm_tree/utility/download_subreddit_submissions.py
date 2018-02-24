@@ -1,3 +1,4 @@
+import sqlite3
 import shutil
 import glob
 import json
@@ -74,7 +75,11 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
         self.disable_db = disable_db
         if not self.disable_db:
             # get db manager object for inserting and saving data to db
-            self.db = TPTDatabaseManager()
+            try:
+                self.db = TPTDatabaseManager()
+            except sqlite3.OperationalError as e:
+                self.log.error("{}: {}".format(e.__class__.__name__, str(e)))
+                self.disable_db = True
 
         # used to check if url ends with any of these
         self.image_extensions = ('.png', '.jpg', '.jpeg', '.gif')
