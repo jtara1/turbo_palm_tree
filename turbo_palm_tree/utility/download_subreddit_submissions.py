@@ -235,8 +235,11 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
     def _cleanup_files():
         """Remove gallery-dl folder if it's there"""
         for path in glob.glob(os.path.join(os.getcwd(), '*')):
-            if os.path.basename(path) == 'gallery-dl' and os.path.isdir(path):
-                shutil.rmtree(path)
+            if os.path.basename(path) == 'gallery-dl':
+                try:
+                    shutil.rmtree(path)
+                except OSError:
+                    pass
                 break
 
     @staticmethod
