@@ -52,7 +52,7 @@ def parse_arguments(args):
                         help='Sort type for subreddit. Search '
                              'SubredditSortTypes in this repo for more info')
     parser.add_argument('--limit', '--num', '-l', metavar='<l>', required=False,
-                        default=5, type=int, help='Number of submissions to'
+                        default=25, type=int, help='Number of submissions to'
                         ' download from; defaults to 5')
     parser.add_argument('--prev-id', '--last-id', metavar='<id>', type=str,
                         default='', required=False, help='Begin downloading'
