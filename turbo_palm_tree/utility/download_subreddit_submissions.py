@@ -88,7 +88,7 @@ class DownloadSubredditSubmissions(GetSubredditSubmissions):
                                             video_extensions))
 
         # prevent gallery-dl module from printing to std output
-        gallery_dl_config.set(("output", "mode"), "null")
+        gallery_dl_config.set(("output",), "mode", "null")
 
     def download(self):
         """Download media from submissions"""
